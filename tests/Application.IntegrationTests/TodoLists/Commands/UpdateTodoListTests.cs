@@ -3,30 +3,32 @@ using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoLists.Commands;
 
-using static Testing;
-
-public class UpdateTodoListTests : BaseTestFixture
+public class UpdateTodoListTests : BaseTest
 {
-    [Test]
+    public UpdateTodoListTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireValidTodoListId()
     {
         var command = new UpdateTodoListCommand { Id = 99, Title = "New Title" };
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldRequireUniqueTitle()
     {
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        await SendAsync(new CreateTodoListCommand
+        await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "Other List"
         });
@@ -38,17 +40,17 @@ public class UpdateTodoListTests : BaseTestFixture
         };
 
         (await FluentActions.Invoking(() =>
-            SendAsync(command))
+            Context.SendAsync(command))
                 .Should().ThrowAsync<ValidationException>().Where(ex => ex.Errors.ContainsKey("Title")))
                 .And.Errors["Title"].Should().Contain("The specified title already exists.");
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldUpdateTodoList()
     {
-        var userId = await RunAsDefaultUserAsync();
+        var userId = await Context.RunAsDefaultUserAsync();
 
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
@@ -59,9 +61,9 @@ public class UpdateTodoListTests : BaseTestFixture
             Title = "Updated List Title"
         };
 
-        await SendAsync(command);
+        await Context.SendAsync(command);
 
-        var list = await FindAsync<TodoList>(listId);
+        var list = await Context.FindAsync<TodoList>(listId);
 
         list.Should().NotBeNull();
         list!.Title.Should().Be(command.Title);

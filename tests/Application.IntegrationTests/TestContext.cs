@@ -6,24 +6,23 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
 using Respawn;
 
 namespace CleanArchitecture.Application.IntegrationTests;
 
-[SetUpFixture]
-public partial class Testing
+public partial class TestContext
 {
-    private static WebApplicationFactory<Program> _factory = null!;
-    private static IConfiguration _configuration = null!;
-    private static IServiceScopeFactory _scopeFactory = null!;
-    private static Checkpoint _checkpoint = null!;
-    private static string? _currentUserId;
+    private WebApplicationFactory<Program> _factory = null!;
+    private IConfiguration _configuration = null!;
+    private IServiceScopeFactory _scopeFactory = null!;
+    private Checkpoint _checkpoint = null!;
+    private CurrentUserService _currentUserService;
 
-    [OneTimeSetUp]
-    public void RunBeforeAnyTests()
+    public TestContext()
     {
-        _factory = new CustomWebApplicationFactory();
+        _currentUserService = new CurrentUserService();
+
+        _factory = new CustomWebApplicationFactory(_currentUserService);
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
         _configuration = _factory.Services.GetRequiredService<IConfiguration>();
 
@@ -33,7 +32,7 @@ public partial class Testing
         };
     }
 
-    public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+    public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
         using var scope = _scopeFactory.CreateScope();
 
@@ -42,22 +41,22 @@ public partial class Testing
         return await mediator.Send(request);
     }
 
-    public static string? GetCurrentUserId()
+    public string? GetCurrentUserId()
     {
-        return _currentUserId;
+        return _currentUserService.UserId;
     }
 
-    public static async Task<string> RunAsDefaultUserAsync()
+    public async Task<string> RunAsDefaultUserAsync()
     {
         return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
     }
 
-    public static async Task<string> RunAsAdministratorAsync()
+    public async Task<string> RunAsAdministratorAsync()
     {
         return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { "Administrator" });
     }
 
-    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
+    public async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
 
@@ -81,9 +80,9 @@ public partial class Testing
 
         if (result.Succeeded)
         {
-            _currentUserId = user.Id;
+            _currentUserService.UserId = user.Id;
 
-            return _currentUserId;
+            return _currentUserService.UserId;
         }
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
@@ -91,14 +90,14 @@ public partial class Testing
         throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
     }
 
-    public static async Task ResetState()
+    public async Task ResetState()
     {
         await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
 
-        _currentUserId = null;
+        _currentUserService.UserId = null;
     }
 
-    public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
+    public async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
         where TEntity : class
     {
         using var scope = _scopeFactory.CreateScope();
@@ -108,7 +107,7 @@ public partial class Testing
         return await context.FindAsync<TEntity>(keyValues);
     }
 
-    public static async Task AddAsync<TEntity>(TEntity entity)
+    public async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
         using var scope = _scopeFactory.CreateScope();
@@ -120,17 +119,12 @@ public partial class Testing
         await context.SaveChangesAsync();
     }
 
-    public static async Task<int> CountAsync<TEntity>() where TEntity : class
+    public async Task<int> CountAsync<TEntity>() where TEntity : class
     {
         using var scope = _scopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync();
-    }
-
-    [OneTimeTearDown]
-    public void RunAfterAnyTests()
-    {
     }
 }

@@ -4,32 +4,34 @@ using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoItems.Commands;
 
-using static Testing;
-
-public class UpdateTodoItemTests : BaseTestFixture
+public class UpdateTodoItemTests : BaseTest
 {
-    [Test]
+    public UpdateTodoItemTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireValidTodoItemId()
     {
         var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldUpdateTodoItem()
     {
-        var userId = await RunAsDefaultUserAsync();
+        var userId = await Context.RunAsDefaultUserAsync();
 
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        var itemId = await SendAsync(new CreateTodoItemCommand
+        var itemId = await Context.SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "New Item"
@@ -41,9 +43,9 @@ public class UpdateTodoItemTests : BaseTestFixture
             Title = "Updated Item Title"
         };
 
-        await SendAsync(command);
+        await Context.SendAsync(command);
 
-        var item = await FindAsync<TodoItem>(itemId);
+        var item = await Context.FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
         item!.Title.Should().Be(command.Title);

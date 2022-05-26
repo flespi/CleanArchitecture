@@ -2,32 +2,34 @@
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.ValueObjects;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoLists.Queries;
 
-using static Testing;
-
-public class GetTodosTests : BaseTestFixture
+public class GetTodosTests : BaseTest
 {
-    [Test]
+    public GetTodosTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldReturnPriorityLevels()
     {
-        await RunAsDefaultUserAsync();
+        await Context.RunAsDefaultUserAsync();
 
         var query = new GetTodosQuery();
 
-        var result = await SendAsync(query);
+        var result = await Context.SendAsync(query);
 
         result.PriorityLevels.Should().NotBeEmpty();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldReturnAllListsAndItems()
     {
-        await RunAsDefaultUserAsync();
+        await Context.RunAsDefaultUserAsync();
 
-        await AddAsync(new TodoList
+        await Context.AddAsync(new TodoList
         {
             Title = "Shopping",
             Colour = Colour.Blue,
@@ -45,18 +47,18 @@ public class GetTodosTests : BaseTestFixture
 
         var query = new GetTodosQuery();
 
-        var result = await SendAsync(query);
+        var result = await Context.SendAsync(query);
 
         result.Lists.Should().HaveCount(1);
         result.Lists.First().Items.Should().HaveCount(7);
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldDenyAnonymousUser()
     {
         var query = new GetTodosQuery();
 
-        var action = () => SendAsync(query);
+        var action = () => Context.SendAsync(query);
         
         await action.Should().ThrowAsync<UnauthorizedAccessException>();
     }

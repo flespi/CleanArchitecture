@@ -4,40 +4,42 @@ using CleanArchitecture.Application.TodoItems.Commands.DeleteTodoItem;
 using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoItems.Commands;
 
-using static Testing;
-
-public class DeleteTodoItemTests : BaseTestFixture
+public class DeleteTodoItemTests : BaseTest
 {
-    [Test]
+    public DeleteTodoItemTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireValidTodoItemId()
     {
         var command = new DeleteTodoItemCommand(99);
 
         await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+            Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldDeleteTodoItem()
     {
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        var itemId = await SendAsync(new CreateTodoItemCommand
+        var itemId = await Context.SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "New Item"
         });
 
-        await SendAsync(new DeleteTodoItemCommand(itemId));
+        await Context.SendAsync(new DeleteTodoItemCommand(itemId));
 
-        var item = await FindAsync<TodoItem>(itemId);
+        var item = await Context.FindAsync<TodoItem>(itemId);
 
         item.Should().BeNull();
     }

@@ -6,13 +6,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests;
 
-using static Testing;
-
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly ICurrentUserService _currentUserService;
+
+    public CustomWebApplicationFactory(CurrentUserService currentUserService)
+    {
+        _currentUserService = currentUserService;
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureAppConfiguration(configurationBuilder =>
@@ -29,8 +35,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         {
             services
                 .Remove<ICurrentUserService>()
-                .AddTransient(provider => Mock.Of<ICurrentUserService>(s =>
-                    s.UserId == GetCurrentUserId()));
+                .AddSingleton(_currentUserService);
 
             services
                 .Remove<DbContextOptions<ApplicationDbContext>>()

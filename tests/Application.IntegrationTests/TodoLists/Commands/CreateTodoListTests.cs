@@ -2,25 +2,27 @@
 using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoLists.Commands;
 
-using static Testing;
-
-public class CreateTodoListTests : BaseTestFixture
+public class CreateTodoListTests : BaseTest
 {
-    [Test]
+    public CreateTodoListTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireMinimumFields()
     {
         var command = new CreateTodoListCommand();
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
+        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldRequireUniqueTitle()
     {
-        await SendAsync(new CreateTodoListCommand
+        await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "Shopping"
         });
@@ -31,22 +33,22 @@ public class CreateTodoListTests : BaseTestFixture
         };
 
         await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<ValidationException>();
+            Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldCreateTodoList()
     {
-        var userId = await RunAsDefaultUserAsync();
+        var userId = await Context.RunAsDefaultUserAsync();
 
         var command = new CreateTodoListCommand
         {
             Title = "Tasks"
         };
 
-        var id = await SendAsync(command);
+        var id = await Context.SendAsync(command);
 
-        var list = await FindAsync<TodoList>(id);
+        var list = await Context.FindAsync<TodoList>(id);
 
         list.Should().NotBeNull();
         list!.Title.Should().Be(command.Title);

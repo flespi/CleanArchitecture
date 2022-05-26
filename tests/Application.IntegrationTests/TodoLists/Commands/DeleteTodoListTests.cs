@@ -3,32 +3,34 @@ using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoLists.Commands;
 
-using static Testing;
-
-public class DeleteTodoListTests : BaseTestFixture
+public class DeleteTodoListTests : BaseTest
 {
-    [Test]
+    public DeleteTodoListTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireValidTodoListId()
     {
         var command = new DeleteTodoListCommand(99);
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldDeleteTodoList()
     {
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        await SendAsync(new DeleteTodoListCommand(listId));
+        await Context.SendAsync(new DeleteTodoListCommand(listId));
 
-        var list = await FindAsync<TodoList>(listId);
+        var list = await Context.FindAsync<TodoList>(listId);
 
         list.Should().BeNull();
     }

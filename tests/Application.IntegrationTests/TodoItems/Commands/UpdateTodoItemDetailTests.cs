@@ -6,32 +6,34 @@ using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Enums;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoItems.Commands;
 
-using static Testing;
-
-public class UpdateTodoItemDetailTests : BaseTestFixture
+public class UpdateTodoItemDetailTests : BaseTest
 {
-    [Test]
+    public UpdateTodoItemDetailTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireValidTodoItemId()
     {
         var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldUpdateTodoItem()
     {
-        var userId = await RunAsDefaultUserAsync();
+        var userId = await Context.RunAsDefaultUserAsync();
 
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        var itemId = await SendAsync(new CreateTodoItemCommand
+        var itemId = await Context.SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "New Item"
@@ -45,9 +47,9 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
             Priority = PriorityLevel.High
         };
 
-        await SendAsync(command);
+        await Context.SendAsync(command);
 
-        var item = await FindAsync<TodoItem>(itemId);
+        var item = await Context.FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
         item!.ListId.Should().Be(command.ListId);

@@ -3,29 +3,31 @@ using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Domain.Entities;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests.TodoItems.Commands;
 
-using static Testing;
-
-public class CreateTodoItemTests : BaseTestFixture
+public class CreateTodoItemTests : BaseTest
 {
-    [Test]
+    public CreateTodoItemTests(TestContext context) : base(context)
+    {
+    }
+
+    [Fact]
     public async Task ShouldRequireMinimumFields()
     {
         var command = new CreateTodoItemCommand();
 
         await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<ValidationException>();
+            Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ShouldCreateTodoItem()
     {
-        var userId = await RunAsDefaultUserAsync();
+        var userId = await Context.RunAsDefaultUserAsync();
 
-        var listId = await SendAsync(new CreateTodoListCommand
+        var listId = await Context.SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
@@ -36,9 +38,9 @@ public class CreateTodoItemTests : BaseTestFixture
             Title = "Tasks"
         };
 
-        var itemId = await SendAsync(command);
+        var itemId = await Context.SendAsync(command);
 
-        var item = await FindAsync<TodoItem>(itemId);
+        var item = await Context.FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
         item!.ListId.Should().Be(command.ListId);
