@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
+import { environment } from 'src/environments/environment';
+import { authSettings } from './app-auth-config'
+import { API_BASE_URL } from './web-api-client';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -14,9 +18,9 @@ import { TodoComponent } from './todo/todo.component';
 import { TokenComponent } from './token/token.component';
 
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
+import { AUTH_SETTINGS } from 'src/api-authorization/authorize.config';
 import { AuthorizeGuard } from 'src/api-authorization/authorize.guard';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
-
 
 @NgModule({
   declarations: [
@@ -36,7 +40,9 @@ import { AuthorizeInterceptor } from 'src/api-authorization/authorize.intercepto
     AppRoutingModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
+    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    { provide: AUTH_SETTINGS, useValue: authSettings },
   ],
   bootstrap: [AppComponent]
 })

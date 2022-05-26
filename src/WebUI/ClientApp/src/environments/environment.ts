@@ -3,7 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  apiBaseUrl: 'https://localhost:5001',
+  auth: {
+    authority: 'https://localhost:6001',
+    client_id: 'CleanArchitecture_SPA'
+  },
 };
 
 /*

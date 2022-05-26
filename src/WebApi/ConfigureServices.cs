@@ -1,7 +1,7 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Infrastructure.Persistence;
-using CleanArchitecture.WebUI.Filters;
-using CleanArchitecture.WebUI.Services;
+using CleanArchitecture.WebApi.Filters;
+using CleanArchitecture.WebApi.Services;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddWebUIServices(this IServiceCollection services)
+    public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
 

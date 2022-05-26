@@ -1,8 +1,9 @@
 ﻿using System.Security.Claims;
 
 using CleanArchitecture.Application.Common.Interfaces;
+using IdentityModel;
 
-namespace CleanArchitecture.WebUI.Services;
+namespace CleanArchitecture.WebApi.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
@@ -13,5 +14,5 @@ public class CurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(JwtClaimTypes.Subject);
 }

@@ -1,7 +1,5 @@
-﻿using CleanArchitecture.Infrastructure.Identity;
-using CleanArchitecture.Infrastructure.Persistence;
+﻿using CleanArchitecture.Infrastructure.Persistence;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -59,36 +57,8 @@ public partial class Testing
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
-        using var scope = _scopeFactory.CreateScope();
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        var user = new ApplicationUser { UserName = userName, Email = userName };
-
-        var result = await userManager.CreateAsync(user, password);
-
-        if (roles.Any())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            foreach (var role in roles)
-            {
-                await roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            await userManager.AddToRolesAsync(user, roles);
-        }
-
-        if (result.Succeeded)
-        {
-            _currentUserId = user.Id;
-
-            return _currentUserId;
-        }
-
-        var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
-
-        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+        _currentUserId = userName;
+        return userName;
     }
 
     public static async Task ResetState()

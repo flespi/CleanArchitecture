@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthorizeService } from './authorize.service';
 import { mergeMap } from 'rxjs/operators';
+import { API_BASE_URL } from 'src/app/web-api-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthorizeInterceptor implements HttpInterceptor {
-  constructor(private authorize: AuthorizeService) { }
+  constructor(private authorize: AuthorizeService, @Inject(API_BASE_URL) private baseUrl?: string) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return this.authorize.getAccessToken()
@@ -19,7 +20,7 @@ export class AuthorizeInterceptor implements HttpInterceptor {
   // and adds it to the request in case it's targeted at the same origin as the
   // single page application.
   private processRequestWithToken(token: string | null, req: HttpRequest<any>, next: HttpHandler) {
-    if (!!token && this.isSameOriginUrl(req)) {
+    if (!!token && this.isWebApiUrl(req)) {
       req = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
@@ -30,25 +31,7 @@ export class AuthorizeInterceptor implements HttpInterceptor {
     return next.handle(req);
   }
 
-  private isSameOriginUrl(req: any) {
-    // It's an absolute url with the same origin.
-    if (req.url.startsWith(`${window.location.origin}/`)) {
-      return true;
-    }
-
-    // It's a protocol relative url with the same origin.
-    // For example: //www.example.com/api/Products
-    if (req.url.startsWith(`//${window.location.host}/`)) {
-      return true;
-    }
-
-    // It's a relative url like /api/Products
-    if (/^\/[^\/].*/.test(req.url)) {
-      return true;
-    }
-
-    // It's an absolute or protocol relative url that
-    // doesn't have the same origin.
-    return false;
+  private isWebApiUrl(req: any) {
+    return req.url.startsWith(`${this.baseUrl}/`);
   }
 }

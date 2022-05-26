@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CleanArchitecture.WebUI.Controllers;
+namespace CleanArchitecture.WebApi.Controllers;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 public class OidcConfigurationController : Controller
