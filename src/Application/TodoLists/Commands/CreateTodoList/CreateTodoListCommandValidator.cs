@@ -1,6 +1,7 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
@@ -8,14 +9,16 @@ public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCo
 {
     private readonly IApplicationDbContext _context;
 
-    public CreateTodoListCommandValidator(IApplicationDbContext context)
+    public CreateTodoListCommandValidator(
+        IApplicationDbContext context,
+        IStringLocalizer<ValidationMessages> localizer)
     {
         _context = context;
 
         RuleFor(v => v.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
-            .MustAsync(BeUniqueTitle).WithMessage("The specified title already exists.");
+            .MustAsync(BeUniqueTitle).WithMessage(localizer["The field must be unique."]);
     }
 
     public async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
