@@ -23,7 +23,10 @@ public class DeleteTodoListTests : BaseTestFixture
     {
         var listId = await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List"
+            Data = new()
+            {
+                Title = "New List"
+            }
         });
 
         await SendAsync(new DeleteTodoListCommand(listId));

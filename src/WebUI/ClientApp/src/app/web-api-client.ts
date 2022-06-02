@@ -308,9 +308,9 @@ export class TodoItemsClient implements ITodoItemsClient {
 
 export interface ITodoListsClient {
     get(): Observable<TodosVm>;
-    create(command: CreateTodoListCommand): Observable<number>;
+    create(data: TodoListData): Observable<number>;
     get2(id: number): Observable<FileResponse>;
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse>;
+    update(id: number, data: TodoListData): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
 }
 
@@ -375,11 +375,11 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf<TodosVm>(null as any);
     }
 
-    create(command: CreateTodoListCommand): Observable<number> {
+    create(data: TodoListData): Observable<number> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
@@ -477,14 +477,14 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf<FileResponse>(null as any);
     }
 
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse> {
+    update(id: number, data: TodoListData): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
@@ -1112,10 +1112,10 @@ export interface ITodoItemDto {
     note?: string | undefined;
 }
 
-export class CreateTodoListCommand implements ICreateTodoListCommand {
+export class TodoListData implements ITodoListData {
     title?: string | undefined;
 
-    constructor(data?: ICreateTodoListCommand) {
+    constructor(data?: ITodoListData) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1130,9 +1130,9 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
         }
     }
 
-    static fromJS(data: any): CreateTodoListCommand {
+    static fromJS(data: any): TodoListData {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateTodoListCommand();
+        let result = new TodoListData();
         result.init(data);
         return result;
     }
@@ -1144,47 +1144,7 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     }
 }
 
-export interface ICreateTodoListCommand {
-    title?: string | undefined;
-}
-
-export class UpdateTodoListCommand implements IUpdateTodoListCommand {
-    id?: number;
-    title?: string | undefined;
-
-    constructor(data?: IUpdateTodoListCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-        }
-    }
-
-    static fromJS(data: any): UpdateTodoListCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoListCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        return data;
-    }
-}
-
-export interface IUpdateTodoListCommand {
-    id?: number;
+export interface ITodoListData {
     title?: string | undefined;
 }
 

@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
+﻿using CleanArchitecture.Application.TodoLists.Commands;
+using CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 using CleanArchitecture.Application.TodoLists.Queries.ExportTodos;
@@ -26,20 +27,15 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoListCommand command)
+    public async Task<ActionResult<int>> Create(TodoListData data)
     {
-        return await Mediator.Send(command);
+        return await Mediator.Send(new CreateTodoListCommand { Data = data });
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
+    public async Task<ActionResult> Update(int id, TodoListData data)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
+        await Mediator.Send(new UpdateTodoListCommand { Id = id, Data = data });
 
         return NoContent();
     }

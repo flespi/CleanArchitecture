@@ -1,26 +1,14 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Validations;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
 public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
 {
-    private readonly IApplicationDbContext _context;
-
-    public CreateTodoListCommandValidator(IApplicationDbContext context)
+    public CreateTodoListCommandValidator(IValidatorFactory validatorFactory)
     {
-        _context = context;
-
-        RuleFor(v => v.Title)
-            .NotEmpty().WithMessage("Title is required.")
-            .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
-            .MustAsync(BeUniqueTitle).WithMessage("The specified title already exists.");
-    }
-
-    public async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
-    {
-        return await _context.TodoLists
-            .AllAsync(l => l.Title != title, cancellationToken);
+        RuleFor(x => x.Data!)
+            .NotNull()
+            .SetValidator(x => validatorFactory.GetValidator<TodoListData>());
     }
 }

@@ -9,7 +9,7 @@ public record UpdateTodoListCommand : IRequest
 {
     public int Id { get; init; }
 
-    public string? Title { get; init; }
+    public TodoListData? Data { get; init; }
 }
 
 public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>
@@ -31,7 +31,7 @@ public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListComman
             throw new NotFoundException(nameof(TodoList), request.Id);
         }
 
-        entity.Title = request.Title;
+        entity.Title = request.Data!.Title;
 
         await _context.SaveChangesAsync(cancellationToken);
 

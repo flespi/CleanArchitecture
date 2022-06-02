@@ -6,7 +6,7 @@ namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
 public record CreateTodoListCommand : IRequest<int>
 {
-    public string? Title { get; init; }
+    public TodoListData? Data { get; init; }
 }
 
 public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, int>
@@ -22,7 +22,7 @@ public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListComman
     {
         var entity = new TodoList();
 
-        entity.Title = request.Title;
+        entity.Title = request.Data!.Title;
 
         _context.TodoLists.Add(entity);
 
