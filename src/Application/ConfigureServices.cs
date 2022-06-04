@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using CleanArchitecture.Application.Common.Behaviours;
+using CleanArchitecture.Application.Common.Transactions;
 using FluentValidation;
 using MediatR;
 
@@ -16,6 +17,8 @@ public static class ConfigureServices
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionalBehaviour<,>));
+        services.AddScoped<ApplicationState>();
 
         return services;
     }
