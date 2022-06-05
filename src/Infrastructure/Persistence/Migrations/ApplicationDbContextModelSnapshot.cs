@@ -17,7 +17,7 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -30,20 +30,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Done")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ListId")
                         .HasColumnType("int");
@@ -76,18 +64,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -450,11 +426,64 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("CleanArchitecture.Domain.Common.Auditability", "Audit", b1 =>
+                        {
+                            b1.Property<int>("TodoItemId")
+                                .HasColumnType("int");
+
+                            b1.Property<DateTime>("Created")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("CreatedBy")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime?>("LastModified")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("LastModifiedBy")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("TodoItemId");
+
+                            b1.ToTable("TodoItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TodoItemId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+
                     b.Navigation("List");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Domain.Entities.TodoList", b =>
                 {
+                    b.OwnsOne("CleanArchitecture.Domain.Common.Auditability", "Audit", b1 =>
+                        {
+                            b1.Property<int>("TodoListId")
+                                .HasColumnType("int");
+
+                            b1.Property<DateTime>("Created")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("CreatedBy")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime?>("LastModified")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("LastModifiedBy")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("TodoListId");
+
+                            b1.ToTable("TodoLists");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TodoListId");
+                        });
+
                     b.OwnsOne("CleanArchitecture.Domain.ValueObjects.Colour", "Colour", b1 =>
                         {
                             b1.Property<int>("TodoListId")
@@ -471,6 +500,9 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");
                         });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
 
                     b.Navigation("Colour")
                         .IsRequired();

@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitecture.Domain.Entities;
 
-public class TodoItem : BaseAuditableEntity
+public class TodoItem : BaseEntity, IAuditableEntity
 {
     public int ListId { get; set; }
 
@@ -28,4 +28,6 @@ public class TodoItem : BaseAuditableEntity
     }
 
     public TodoList List { get; set; } = null!;
+
+    public Auditability Audit { get; set; } = null!;
 }
