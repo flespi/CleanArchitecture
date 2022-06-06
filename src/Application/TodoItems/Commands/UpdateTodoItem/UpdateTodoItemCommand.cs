@@ -1,17 +1,21 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Application.Common.Types;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 
-public record UpdateTodoItemCommand : IRequest
+public record UpdateTodoItemCommand : IRequest, IConditionalRequest
 {
     public int Id { get; init; }
 
     public string? Title { get; init; }
 
     public bool Done { get; init; }
+
+    public Hex? ConcurrencyToken { get; set; }
 }
 
 public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
@@ -31,6 +35,11 @@ public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemComman
         if (entity == null)
         {
             throw new NotFoundException(nameof(TodoItem), request.Id);
+        }
+
+        if (!request.ConcurrencyToken?.Equals(entity.ConcurrencyToken) ?? false)
+        {
+            throw new ConcurrencyException();
         }
 
         entity.Title = request.Title;

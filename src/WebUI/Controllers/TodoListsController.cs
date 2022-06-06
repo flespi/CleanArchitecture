@@ -32,12 +32,14 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
+    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
         if (id != command.Id)
         {
             return BadRequest();
         }
+
+        command.ConcurrencyToken = concurrencyToken;
 
         await Mediator.Send(command);
 

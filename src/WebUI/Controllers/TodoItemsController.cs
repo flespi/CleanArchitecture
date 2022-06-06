@@ -3,9 +3,11 @@ using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.DeleteTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
+using CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace CleanArchitecture.WebUI.Controllers;
 
@@ -24,13 +26,24 @@ public class TodoItemsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TodoItemDto>> Read(int id)
+    {
+        var response = await Mediator.Send(new GetTodoItemQuery { Id = id });
+
+        Response.Headers.Add(HeaderNames.ETag, response.ConcurrencyToken);
+        return response.Result!;
+    }
+
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoItemCommand command)
+    public async Task<ActionResult> Update(int id, UpdateTodoItemCommand command, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
         if (id != command.Id)
         {
             return BadRequest();
         }
+
+        command.ConcurrencyToken = concurrencyToken;
 
         await Mediator.Send(command);
 
@@ -38,12 +51,14 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPut("[action]")]
-    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
+    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
         if (id != command.Id)
         {
             return BadRequest();
         }
+
+        command.ConcurrencyToken = concurrencyToken;
 
         await Mediator.Send(command);
 

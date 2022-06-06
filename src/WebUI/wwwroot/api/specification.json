@@ -97,6 +97,41 @@
       }
     },
     "/api/TodoItems/{id}": {
+      "get": {
+        "tags": [
+          "TodoItems"
+        ],
+        "operationId": "TodoItems_Read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "TodoItems"
@@ -112,6 +147,16 @@
               "format": "int32"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -197,6 +242,16 @@
               "format": "int32"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -344,6 +399,16 @@
               "format": "int32"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -505,6 +570,27 @@
           }
         }
       },
+      "TodoItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "listId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "done": {
+            "type": "boolean"
+          }
+        }
+      },
       "UpdateTodoItemCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -519,8 +605,20 @@
           },
           "done": {
             "type": "boolean"
+          },
+          "concurrencyToken": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Hex"
+              }
+            ]
           }
         }
+      },
+      "Hex": {
+        "type": "object",
+        "additionalProperties": false
       },
       "UpdateTodoItemDetailCommand": {
         "type": "object",
@@ -540,6 +638,18 @@
           "note": {
             "type": "string",
             "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "concurrencyToken": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Hex"
+              }
+            ]
           }
         }
       },
@@ -610,12 +720,12 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TodoItemDto"
+              "$ref": "#/components/schemas/TodoItemDto2"
             }
           }
         }
       },
-      "TodoItemDto": {
+      "TodoItemDto2": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -665,6 +775,14 @@
           "title": {
             "type": "string",
             "nullable": true
+          },
+          "concurrencyToken": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Hex"
+              }
+            ]
           }
         }
       },

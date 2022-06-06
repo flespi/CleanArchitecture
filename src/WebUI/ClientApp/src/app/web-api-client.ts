@@ -18,9 +18,10 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 export interface ITodoItemsClient {
     getTodoItemsWithPagination(listId: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto>;
     create(command: CreateTodoItemCommand): Observable<number>;
-    update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse>;
+    read(id: number): Observable<TodoItemDto>;
+    update(id: number, concurrencyToken: string | null | undefined, command: UpdateTodoItemCommand): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
-    updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse>;
+    updateItemDetails(id: number | undefined, concurrencyToken: string | null | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse>;
 }
 
 @Injectable({
@@ -149,7 +150,58 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf<number>(null as any);
     }
 
-    update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse> {
+    read(id: number): Observable<TodoItemDto> {
+        let url_ = this.baseUrl + "/api/TodoItems/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRead(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRead(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TodoItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TodoItemDto>;
+        }));
+    }
+
+    protected processRead(response: HttpResponseBase): Observable<TodoItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TodoItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<TodoItemDto>(null as any);
+    }
+
+    update(id: number, concurrencyToken: string | null | undefined, command: UpdateTodoItemCommand): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -163,6 +215,7 @@ export class TodoItemsClient implements ITodoItemsClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -251,7 +304,7 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf<FileResponse>(null as any);
     }
 
-    updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse> {
+    updateItemDetails(id: number | undefined, concurrencyToken: string | null | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoItems/UpdateItemDetails?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
@@ -266,6 +319,7 @@ export class TodoItemsClient implements ITodoItemsClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -310,7 +364,7 @@ export interface ITodoListsClient {
     get(): Observable<TodosVm>;
     create(command: CreateTodoListCommand): Observable<number>;
     get2(id: number): Observable<FileResponse>;
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse>;
+    update(id: number, concurrencyToken: string | null | undefined, command: UpdateTodoListCommand): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
 }
 
@@ -477,7 +531,7 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf<FileResponse>(null as any);
     }
 
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse> {
+    update(id: number, concurrencyToken: string | null | undefined, command: UpdateTodoListCommand): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -491,6 +545,7 @@ export class TodoListsClient implements ITodoListsClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -805,10 +860,59 @@ export interface ICreateTodoItemCommand {
     title?: string | undefined;
 }
 
+export class TodoItemDto implements ITodoItemDto {
+    id?: number;
+    listId?: number;
+    title?: string | undefined;
+    done?: boolean;
+
+    constructor(data?: ITodoItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.listId = _data["listId"];
+            this.title = _data["title"];
+            this.done = _data["done"];
+        }
+    }
+
+    static fromJS(data: any): TodoItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TodoItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["listId"] = this.listId;
+        data["title"] = this.title;
+        data["done"] = this.done;
+        return data;
+    }
+}
+
+export interface ITodoItemDto {
+    id?: number;
+    listId?: number;
+    title?: string | undefined;
+    done?: boolean;
+}
+
 export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
     id?: number;
     title?: string | undefined;
     done?: boolean;
+    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoItemCommand) {
         if (data) {
@@ -824,6 +928,7 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
             this.id = _data["id"];
             this.title = _data["title"];
             this.done = _data["done"];
+            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -839,6 +944,7 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
         data["id"] = this.id;
         data["title"] = this.title;
         data["done"] = this.done;
+        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -847,6 +953,37 @@ export interface IUpdateTodoItemCommand {
     id?: number;
     title?: string | undefined;
     done?: boolean;
+    concurrencyToken?: Hex | undefined;
+}
+
+export class Hex implements IHex {
+
+    constructor(data?: IHex) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): Hex {
+        data = typeof data === 'object' ? data : {};
+        let result = new Hex();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IHex {
 }
 
 export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
@@ -854,6 +991,8 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
     listId?: number;
     priority?: PriorityLevel;
     note?: string | undefined;
+    version?: string | undefined;
+    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoItemDetailCommand) {
         if (data) {
@@ -870,6 +1009,8 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
             this.listId = _data["listId"];
             this.priority = _data["priority"];
             this.note = _data["note"];
+            this.version = _data["version"];
+            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -886,6 +1027,8 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
         data["listId"] = this.listId;
         data["priority"] = this.priority;
         data["note"] = this.note;
+        data["version"] = this.version;
+        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -895,6 +1038,8 @@ export interface IUpdateTodoItemDetailCommand {
     listId?: number;
     priority?: PriorityLevel;
     note?: string | undefined;
+    version?: string | undefined;
+    concurrencyToken?: Hex | undefined;
 }
 
 export enum PriorityLevel {
@@ -1004,7 +1149,7 @@ export class TodoListDto implements ITodoListDto {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto2[];
 
     constructor(data?: ITodoListDto) {
         if (data) {
@@ -1023,7 +1168,7 @@ export class TodoListDto implements ITodoListDto {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(TodoItemDto.fromJS(item));
+                    this.items!.push(TodoItemDto2.fromJS(item));
             }
         }
     }
@@ -1053,10 +1198,10 @@ export interface ITodoListDto {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto2[];
 }
 
-export class TodoItemDto implements ITodoItemDto {
+export class TodoItemDto2 implements ITodoItemDto2 {
     id?: number;
     listId?: number;
     title?: string | undefined;
@@ -1064,7 +1209,7 @@ export class TodoItemDto implements ITodoItemDto {
     priority?: number;
     note?: string | undefined;
 
-    constructor(data?: ITodoItemDto) {
+    constructor(data?: ITodoItemDto2) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1084,9 +1229,9 @@ export class TodoItemDto implements ITodoItemDto {
         }
     }
 
-    static fromJS(data: any): TodoItemDto {
+    static fromJS(data: any): TodoItemDto2 {
         data = typeof data === 'object' ? data : {};
-        let result = new TodoItemDto();
+        let result = new TodoItemDto2();
         result.init(data);
         return result;
     }
@@ -1103,7 +1248,7 @@ export class TodoItemDto implements ITodoItemDto {
     }
 }
 
-export interface ITodoItemDto {
+export interface ITodoItemDto2 {
     id?: number;
     listId?: number;
     title?: string | undefined;
@@ -1151,6 +1296,7 @@ export interface ICreateTodoListCommand {
 export class UpdateTodoListCommand implements IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoListCommand) {
         if (data) {
@@ -1165,6 +1311,7 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
         if (_data) {
             this.id = _data["id"];
             this.title = _data["title"];
+            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -1179,6 +1326,7 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["title"] = this.title;
+        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -1186,6 +1334,7 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+    concurrencyToken?: Hex | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {
