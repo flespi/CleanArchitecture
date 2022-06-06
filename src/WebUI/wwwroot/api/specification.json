@@ -65,11 +65,11 @@
         ],
         "operationId": "TodoItems_Create",
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateTodoItemCommand"
+                "$ref": "#/components/schemas/CreateTodoItemDto"
               }
             }
           },
@@ -115,11 +115,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemCommand"
+                "$ref": "#/components/schemas/UpdateTodoItemDto"
               }
             }
           },
@@ -182,7 +182,7 @@
         ]
       }
     },
-    "/api/TodoItems/UpdateItemDetails": {
+    "/api/TodoItems/{id}/details": {
       "put": {
         "tags": [
           "TodoItems"
@@ -191,7 +191,8 @@
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -200,11 +201,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemDetailCommand"
+                "$ref": "#/components/schemas/UpdateTodoItemDetailDto"
               }
             }
           },
@@ -265,7 +266,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TodoListData"
+                "$ref": "#/components/schemas/CreateTodoListDto"
               }
             }
           },
@@ -351,7 +352,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TodoListData"
+                "$ref": "#/components/schemas/UpdateTodoListDto"
               }
             }
           },
@@ -491,45 +492,53 @@
           }
         }
       },
-      "CreateTodoItemCommand": {
+      "CreateTodoItemDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoItemDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ]
+      },
+      "BaseTodoItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "title": {
             "type": "string",
             "nullable": true
           }
         }
       },
-      "UpdateTodoItemCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
+      "UpdateTodoItemDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoItemDto"
           },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "done": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "done": {
+                "type": "boolean"
+              }
+            }
           }
-        }
+        ]
       },
-      "UpdateTodoItemDetailCommand": {
+      "UpdateTodoItemDetailDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
           "listId": {
             "type": "integer",
             "format": "int32"
@@ -644,7 +653,18 @@
           }
         }
       },
-      "TodoListData": {
+      "CreateTodoListDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoListDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "BaseTodoListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -653,6 +673,17 @@
             "nullable": true
           }
         }
+      },
+      "UpdateTodoListDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoListDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
       },
       "WeatherForecast": {
         "type": "object",

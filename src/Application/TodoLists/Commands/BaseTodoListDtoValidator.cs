@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Application.TodoLists.Commands;
 
-public class TodoListDataValidator : DataValidator<TodoListData>
+public class BaseTodoListDtoValidator : DataValidator<BaseTodoListDto>
 {
     private readonly IApplicationDbContext _context;
 
-    public TodoListDataValidator(IApplicationDbContext context)
+    public BaseTodoListDtoValidator(IApplicationDbContext context)
     {
         _context = context;
 
@@ -19,7 +19,7 @@ public class TodoListDataValidator : DataValidator<TodoListData>
             .MustAsync(BeUniqueTitle).WithMessage("The specified title already exists.");
     }
 
-    public async Task<bool> BeUniqueTitle(TodoListData model, string title, CancellationToken cancellationToken)
+    public async Task<bool> BeUniqueTitle(BaseTodoListDto model, string title, CancellationToken cancellationToken)
     {
         return await _context.TodoLists
             .Where(l => l.Id != Options.Id)

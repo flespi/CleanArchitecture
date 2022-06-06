@@ -6,7 +6,7 @@ namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
 public record CreateTodoListCommand : IRequest<int>
 {
-    public TodoListData? Data { get; init; }
+    public CreateTodoListDto? Data { get; init; }
 }
 
 public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, int>

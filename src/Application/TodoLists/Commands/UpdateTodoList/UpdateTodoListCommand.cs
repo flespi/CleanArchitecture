@@ -9,7 +9,7 @@ public record UpdateTodoListCommand : IRequest
 {
     public int Id { get; init; }
 
-    public TodoListData? Data { get; init; }
+    public UpdateTodoListDto? Data { get; init; }
 }
 
 public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>

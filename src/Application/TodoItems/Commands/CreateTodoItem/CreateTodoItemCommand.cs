@@ -7,9 +7,7 @@ namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
 public record CreateTodoItemCommand : IRequest<int>
 {
-    public int ListId { get; init; }
-
-    public string? Title { get; init; }
+    public CreateTodoItemDto? Data { get; init; }
 }
 
 public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
@@ -25,8 +23,8 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
     {
         var entity = new TodoItem
         {
-            ListId = request.ListId,
-            Title = request.Title,
+            ListId = request.Data!.ListId,
+            Title = request.Data!.Title,
             Done = false
         };
 

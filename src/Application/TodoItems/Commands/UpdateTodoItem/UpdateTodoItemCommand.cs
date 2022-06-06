@@ -9,9 +9,7 @@ public record UpdateTodoItemCommand : IRequest
 {
     public int Id { get; init; }
 
-    public string? Title { get; init; }
-
-    public bool Done { get; init; }
+    public UpdateTodoItemDto? Data { get; init; }
 }
 
 public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
@@ -33,8 +31,8 @@ public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemComman
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        entity.Title = request.Title;
-        entity.Done = request.Done;
+        entity.Title = request.Data!.Title;
+        entity.Done = request.Data!.Done;
 
         await _context.SaveChangesAsync(cancellationToken);
 

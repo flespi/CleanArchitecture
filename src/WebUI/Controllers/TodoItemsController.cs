@@ -19,33 +19,23 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command)
+    public async Task<ActionResult<int>> Create(CreateTodoItemDto data)
     {
-        return await Mediator.Send(command);
+        return await Mediator.Send(new CreateTodoItemCommand { Data = data });
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoItemCommand command)
+    public async Task<ActionResult> Update(int id, UpdateTodoItemDto data)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
+        await Mediator.Send(new UpdateTodoItemCommand { Id = id, Data = data });
 
         return NoContent();
     }
 
-    [HttpPut("[action]")]
-    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
+    [HttpPut("{id}/details")]
+    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailDto data)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
+        await Mediator.Send(new UpdateTodoItemDetailCommand { Id = id, Data = data });
 
         return NoContent();
     }

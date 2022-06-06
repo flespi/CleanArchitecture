@@ -10,11 +10,7 @@ public record UpdateTodoItemDetailCommand : IRequest
 {
     public int Id { get; init; }
 
-    public int ListId { get; init; }
-
-    public PriorityLevel Priority { get; init; }
-
-    public string? Note { get; init; }
+    public UpdateTodoItemDetailDto? Data { get; init; }
 }
 
 public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
@@ -36,9 +32,9 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        entity.ListId = request.ListId;
-        entity.Priority = request.Priority;
-        entity.Note = request.Note;
+        entity.ListId = request.Data!.ListId;
+        entity.Priority = request.Data!.Priority;
+        entity.Note = request.Data!.Note;
 
         await _context.SaveChangesAsync(cancellationToken);
 
