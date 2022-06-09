@@ -16,11 +16,12 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface ITodoItemsClient {
-    getTodoItemsWithPagination(listId: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto>;
-    create(command: CreateTodoItemCommand): Observable<number>;
-    update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse>;
-    delete(id: number): Observable<FileResponse>;
-    updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse>;
+    getTodoItemsWithPagination(listId: string | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto>;
+    create(idempotencyKey: string | null | undefined, data: CreateTodoItemDto): Observable<string>;
+    read(id: string): Observable<TodoItemDto>;
+    update(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoItemDto): Observable<FileResponse>;
+    delete(id: string): Observable<FileResponse>;
+    updateItemDetails(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoItemDetailDto): Observable<FileResponse>;
 }
 
 @Injectable({
@@ -36,7 +37,7 @@ export class TodoItemsClient implements ITodoItemsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getTodoItemsWithPagination(listId: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto> {
+    getTodoItemsWithPagination(listId: string | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto> {
         let url_ = this.baseUrl + "/api/TodoItems?";
         if (listId === null)
             throw new Error("The parameter 'listId' cannot be null.");
@@ -96,17 +97,18 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf(null as any);
     }
 
-    create(command: CreateTodoItemCommand): Observable<number> {
+    create(idempotencyKey: string | null | undefined, data: CreateTodoItemDto): Observable<string> {
         let url_ = this.baseUrl + "/api/TodoItems";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Idempotency-Key": idempotencyKey !== undefined && idempotencyKey !== null ? "" + idempotencyKey : "",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             })
@@ -119,14 +121,14 @@ export class TodoItemsClient implements ITodoItemsClient {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<number>;
+                    return _observableThrow(e) as any as Observable<string>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<number>;
+                return _observableThrow(response_) as any as Observable<string>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<number> {
+    protected processCreate(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -149,20 +151,72 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf(null as any);
     }
 
-    update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse> {
+    read(id: string): Observable<TodoItemDto> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRead(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRead(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TodoItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TodoItemDto>;
+        }));
+    }
+
+    protected processRead(response: HttpResponseBase): Observable<TodoItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TodoItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    update(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoItemDto): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/TodoItems/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -202,7 +256,7 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf(null as any);
     }
 
-    delete(id: number): Observable<FileResponse> {
+    delete(id: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -251,21 +305,21 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf(null as any);
     }
 
-    updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/TodoItems/UpdateItemDetails?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
+    updateItemDetails(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoItemDetailDto): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/TodoItems/{id}/details";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -308,10 +362,10 @@ export class TodoItemsClient implements ITodoItemsClient {
 
 export interface ITodoListsClient {
     get(): Observable<TodosVm>;
-    create(command: CreateTodoListCommand): Observable<number>;
-    get2(id: number): Observable<FileResponse>;
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse>;
-    delete(id: number): Observable<FileResponse>;
+    create(idempotencyKey: string | null | undefined, data: CreateTodoListDto): Observable<string>;
+    get2(id: string): Observable<FileResponse>;
+    update(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoListDto): Observable<FileResponse>;
+    delete(id: string): Observable<FileResponse>;
 }
 
 @Injectable({
@@ -375,17 +429,18 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf(null as any);
     }
 
-    create(command: CreateTodoListCommand): Observable<number> {
+    create(idempotencyKey: string | null | undefined, data: CreateTodoListDto): Observable<string> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Idempotency-Key": idempotencyKey !== undefined && idempotencyKey !== null ? "" + idempotencyKey : "",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             })
@@ -398,14 +453,14 @@ export class TodoListsClient implements ITodoListsClient {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<number>;
+                    return _observableThrow(e) as any as Observable<string>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<number>;
+                return _observableThrow(response_) as any as Observable<string>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<number> {
+    protected processCreate(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -428,7 +483,7 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf(null as any);
     }
 
-    get2(id: number): Observable<FileResponse> {
+    get2(id: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -477,20 +532,21 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf(null as any);
     }
 
-    update(id: number, command: UpdateTodoListCommand): Observable<FileResponse> {
+    update(id: string, concurrencyToken: string | null | undefined, data: UpdateTodoListDto): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(data);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "If-Match": concurrencyToken !== undefined && concurrencyToken !== null ? "" + concurrencyToken : "",
                 "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             })
@@ -530,7 +586,7 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf(null as any);
     }
 
-    delete(id: number): Observable<FileResponse> {
+    delete(id: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -718,8 +774,8 @@ export interface IPaginatedListOfTodoItemBriefDto {
 }
 
 export class TodoItemBriefDto implements ITodoItemBriefDto {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
 
@@ -759,17 +815,16 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
 }
 
 export interface ITodoItemBriefDto {
-    id?: number;
-    listId?: number;
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
 }
 
-export class CreateTodoItemCommand implements ICreateTodoItemCommand {
-    listId?: number;
+export class BaseTodoItemDto implements IBaseTodoItemDto {
     title?: string | undefined;
 
-    constructor(data?: ICreateTodoItemCommand) {
+    constructor(data?: IBaseTodoItemDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -780,37 +835,68 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.listId = _data["listId"];
             this.title = _data["title"];
         }
     }
 
-    static fromJS(data: any): CreateTodoItemCommand {
+    static fromJS(data: any): BaseTodoItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateTodoItemCommand();
+        let result = new BaseTodoItemDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["listId"] = this.listId;
         data["title"] = this.title;
         return data;
     }
 }
 
-export interface ICreateTodoItemCommand {
-    listId?: number;
+export interface IBaseTodoItemDto {
     title?: string | undefined;
 }
 
-export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
-    id?: number;
+export class CreateTodoItemDto extends BaseTodoItemDto implements ICreateTodoItemDto {
+    listId?: string;
+
+    constructor(data?: ICreateTodoItemDto) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.listId = _data["listId"];
+        }
+    }
+
+    static override fromJS(data: any): CreateTodoItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTodoItemDto();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["listId"] = this.listId;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ICreateTodoItemDto extends IBaseTodoItemDto {
+    listId?: string;
+}
+
+export class TodoItemDto implements ITodoItemDto {
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
 
-    constructor(data?: IUpdateTodoItemCommand) {
+    constructor(data?: ITodoItemDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -822,14 +908,15 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.listId = _data["listId"];
             this.title = _data["title"];
             this.done = _data["done"];
         }
     }
 
-    static fromJS(data: any): UpdateTodoItemCommand {
+    static fromJS(data: any): TodoItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoItemCommand();
+        let result = new TodoItemDto();
         result.init(data);
         return result;
     }
@@ -837,25 +924,59 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["listId"] = this.listId;
         data["title"] = this.title;
         data["done"] = this.done;
         return data;
     }
 }
 
-export interface IUpdateTodoItemCommand {
-    id?: number;
+export interface ITodoItemDto {
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
 }
 
-export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
+export class UpdateTodoItemDto extends BaseTodoItemDto implements IUpdateTodoItemDto {
+    done?: boolean;
+
+    constructor(data?: IUpdateTodoItemDto) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.done = _data["done"];
+        }
+    }
+
+    static override fromJS(data: any): UpdateTodoItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTodoItemDto();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["done"] = this.done;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IUpdateTodoItemDto extends IBaseTodoItemDto {
+    done?: boolean;
+}
+
+export class UpdateTodoItemDetailDto implements IUpdateTodoItemDetailDto {
+    listId?: string;
     priority?: PriorityLevel;
     note?: string | undefined;
 
-    constructor(data?: IUpdateTodoItemDetailCommand) {
+    constructor(data?: IUpdateTodoItemDetailDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -866,23 +987,21 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
             this.listId = _data["listId"];
             this.priority = _data["priority"];
             this.note = _data["note"];
         }
     }
 
-    static fromJS(data: any): UpdateTodoItemDetailCommand {
+    static fromJS(data: any): UpdateTodoItemDetailDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoItemDetailCommand();
+        let result = new UpdateTodoItemDetailDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
         data["listId"] = this.listId;
         data["priority"] = this.priority;
         data["note"] = this.note;
@@ -890,9 +1009,8 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
     }
 }
 
-export interface IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
+export interface IUpdateTodoItemDetailDto {
+    listId?: string;
     priority?: PriorityLevel;
     note?: string | undefined;
 }
@@ -1001,10 +1119,10 @@ export interface IPriorityLevelDto {
 }
 
 export class TodoListDto implements ITodoListDto {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto2[];
 
     constructor(data?: ITodoListDto) {
         if (data) {
@@ -1023,7 +1141,7 @@ export class TodoListDto implements ITodoListDto {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(TodoItemDto.fromJS(item));
+                    this.items!.push(TodoItemDto2.fromJS(item));
             }
         }
     }
@@ -1050,21 +1168,21 @@ export class TodoListDto implements ITodoListDto {
 }
 
 export interface ITodoListDto {
-    id?: number;
+    id?: string;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: TodoItemDto2[];
 }
 
-export class TodoItemDto implements ITodoItemDto {
-    id?: number;
-    listId?: number;
+export class TodoItemDto2 implements ITodoItemDto2 {
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
     priority?: number;
     note?: string | undefined;
 
-    constructor(data?: ITodoItemDto) {
+    constructor(data?: ITodoItemDto2) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1084,9 +1202,9 @@ export class TodoItemDto implements ITodoItemDto {
         }
     }
 
-    static fromJS(data: any): TodoItemDto {
+    static fromJS(data: any): TodoItemDto2 {
         data = typeof data === 'object' ? data : {};
-        let result = new TodoItemDto();
+        let result = new TodoItemDto2();
         result.init(data);
         return result;
     }
@@ -1103,19 +1221,19 @@ export class TodoItemDto implements ITodoItemDto {
     }
 }
 
-export interface ITodoItemDto {
-    id?: number;
-    listId?: number;
+export interface ITodoItemDto2 {
+    id?: string;
+    listId?: string;
     title?: string | undefined;
     done?: boolean;
     priority?: number;
     note?: string | undefined;
 }
 
-export class CreateTodoListCommand implements ICreateTodoListCommand {
+export class BaseTodoListDto implements IBaseTodoListDto {
     title?: string | undefined;
 
-    constructor(data?: ICreateTodoListCommand) {
+    constructor(data?: IBaseTodoListDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1130,9 +1248,9 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
         }
     }
 
-    static fromJS(data: any): CreateTodoListCommand {
+    static fromJS(data: any): BaseTodoListDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateTodoListCommand();
+        let result = new BaseTodoListDto();
         result.init(data);
         return result;
     }
@@ -1144,48 +1262,62 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     }
 }
 
-export interface ICreateTodoListCommand {
+export interface IBaseTodoListDto {
     title?: string | undefined;
 }
 
-export class UpdateTodoListCommand implements IUpdateTodoListCommand {
-    id?: number;
-    title?: string | undefined;
+export class CreateTodoListDto extends BaseTodoListDto implements ICreateTodoListDto {
 
-    constructor(data?: IUpdateTodoListCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+    constructor(data?: ICreateTodoListDto) {
+        super(data);
     }
 
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-        }
+    override init(_data?: any) {
+        super.init(_data);
     }
 
-    static fromJS(data: any): UpdateTodoListCommand {
+    static override fromJS(data: any): CreateTodoListDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoListCommand();
+        let result = new CreateTodoListDto();
         result.init(data);
         return result;
     }
 
-    toJSON(data?: any) {
+    override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
+        super.toJSON(data);
         return data;
     }
 }
 
-export interface IUpdateTodoListCommand {
-    id?: number;
-    title?: string | undefined;
+export interface ICreateTodoListDto extends IBaseTodoListDto {
+}
+
+export class UpdateTodoListDto extends BaseTodoListDto implements IUpdateTodoListDto {
+
+    constructor(data?: IUpdateTodoListDto) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+    }
+
+    static override fromJS(data: any): UpdateTodoListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTodoListDto();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IUpdateTodoListDto extends IBaseTodoListDto {
 }
 
 export class WeatherForecast implements IWeatherForecast {

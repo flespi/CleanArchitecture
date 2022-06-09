@@ -4,10 +4,10 @@ namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 
 public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
 {
-    public UpdateTodoItemCommandValidator()
+    public UpdateTodoItemCommandValidator(IValidatorFactory validatorFactory)
     {
-        RuleFor(v => v.Title)
-            .MaximumLength(200)
-            .NotEmpty();
+        RuleFor(x => x.Data!)
+            .NotNull()
+            .SetValidator(x => validatorFactory.GetValidator<BaseTodoItemDto>());
     }
 }

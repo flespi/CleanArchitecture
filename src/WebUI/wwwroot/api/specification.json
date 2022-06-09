@@ -17,8 +17,8 @@
             "name": "ListId",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           },
@@ -64,12 +64,25 @@
           "TodoItems"
         ],
         "operationId": "TodoItems_Create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "x-originalName": "idempotencyKey",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateTodoItemCommand"
+                "$ref": "#/components/schemas/CreateTodoItemDto"
               }
             }
           },
@@ -82,8 +95,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "type": "string",
+                  "format": "guid"
                 }
               }
             }
@@ -97,6 +110,41 @@
       }
     },
     "/api/TodoItems/{id}": {
+      "get": {
+        "tags": [
+          "TodoItems"
+        ],
+        "operationId": "TodoItems_Read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "TodoItems"
@@ -108,18 +156,28 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemCommand"
+                "$ref": "#/components/schemas/UpdateTodoItemDto"
               }
             }
           },
@@ -156,8 +214,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -182,7 +240,7 @@
         ]
       }
     },
-    "/api/TodoItems/UpdateItemDetails": {
+    "/api/TodoItems/{id}/details": {
       "put": {
         "tags": [
           "TodoItems"
@@ -191,20 +249,31 @@
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemDetailCommand"
+                "$ref": "#/components/schemas/UpdateTodoItemDetailDto"
               }
             }
           },
@@ -260,12 +329,25 @@
           "TodoLists"
         ],
         "operationId": "TodoLists_Create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "x-originalName": "idempotencyKey",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateTodoListCommand"
+                "$ref": "#/components/schemas/CreateTodoListDto"
               }
             }
           },
@@ -278,8 +360,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "type": "string",
+                  "format": "guid"
                 }
               }
             }
@@ -304,8 +386,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -340,18 +422,28 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "x-originalName": "concurrencyToken",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
-          "x-name": "command",
+          "x-name": "data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTodoListCommand"
+                "$ref": "#/components/schemas/UpdateTodoListDto"
               }
             }
           },
@@ -388,8 +480,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -475,12 +567,12 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -491,27 +583,44 @@
           }
         }
       },
-      "CreateTodoItemCommand": {
+      "CreateTodoItemDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoItemDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "type": "string",
+                "format": "guid"
+              }
+            }
+          }
+        ]
+      },
+      "BaseTodoItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "title": {
             "type": "string",
             "nullable": true
           }
         }
       },
-      "UpdateTodoItemCommand": {
+      "TodoItemDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
+          },
+          "listId": {
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -522,17 +631,29 @@
           }
         }
       },
-      "UpdateTodoItemDetailCommand": {
+      "UpdateTodoItemDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoItemDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "done": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "UpdateTodoItemDetailDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "priority": {
             "$ref": "#/components/schemas/PriorityLevel"
@@ -596,8 +717,8 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -610,22 +731,22 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TodoItemDto"
+              "$ref": "#/components/schemas/TodoItemDto2"
             }
           }
         }
       },
-      "TodoItemDto": {
+      "TodoItemDto2": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -644,7 +765,18 @@
           }
         }
       },
-      "CreateTodoListCommand": {
+      "CreateTodoListDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoListDto"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "BaseTodoListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -654,19 +786,16 @@
           }
         }
       },
-      "UpdateTodoListCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
+      "UpdateTodoListDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseTodoListDto"
           },
-          "title": {
-            "type": "string",
-            "nullable": true
+          {
+            "type": "object",
+            "additionalProperties": false
           }
-        }
+        ]
       },
       "WeatherForecast": {
         "type": "object",

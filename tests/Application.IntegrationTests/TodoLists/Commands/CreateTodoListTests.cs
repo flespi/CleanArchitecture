@@ -22,12 +22,18 @@ public class CreateTodoListTests : BaseTestFixture
     {
         await SendAsync(new CreateTodoListCommand
         {
-            Title = "Shopping"
+            Data = new()
+            {
+                Title = "Shopping"
+            }
         });
 
         var command = new CreateTodoListCommand
         {
-            Title = "Shopping"
+            Data = new()
+            {
+                Title = "Shopping"
+            }
         };
 
         await FluentActions.Invoking(() =>
@@ -41,7 +47,10 @@ public class CreateTodoListTests : BaseTestFixture
 
         var command = new CreateTodoListCommand
         {
-            Title = "Tasks"
+            Data = new()
+            {
+                Title = "Tasks"
+            }
         };
 
         var id = await SendAsync(command);
@@ -49,8 +58,8 @@ public class CreateTodoListTests : BaseTestFixture
         var list = await FindAsync<TodoList>(id);
 
         list.Should().NotBeNull();
-        list!.Title.Should().Be(command.Title);
-        list.CreatedBy.Should().Be(userId);
-        list.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        list!.Title.Should().Be(command.Data.Title);
+        list.Audit.CreatedBy.Should().Be(userId);
+        list.Audit.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

@@ -18,7 +18,7 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<FileResult> Get(int id)
+    public async Task<FileResult> Get(Guid id)
     {
         var vm = await Mediator.Send(new ExportTodosQuery { ListId = id });
 
@@ -26,28 +26,23 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoListCommand command)
+    public async Task<ActionResult<Guid>> Create(CreateTodoListDto data, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
     {
-        return await Mediator.Send(command);
+        return await Mediator.Send(new CreateTodoListCommand { Data = data, IdempotencyKey = idempotencyKey });
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
+    public async Task<ActionResult> Update(Guid id, UpdateTodoListDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
+        await Mediator.Send(new UpdateTodoListCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
 
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<ActionResult> Delete(Guid id)
     {
-        await Mediator.Send(new DeleteTodoListCommand(id));
+        await Mediator.Send(new DeleteTodoListCommand { Id = id });
 
         return NoContent();
     }

@@ -10,7 +10,7 @@ public class TodoListDto : IMapFrom<TodoList>
         Items = new List<TodoItemDto>();
     }
 
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string? Title { get; set; }
 

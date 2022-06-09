@@ -17,7 +17,15 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
     [Test]
     public async Task ShouldRequireValidTodoItemId()
     {
-        var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
+        var command = new UpdateTodoItemCommand
+        {
+            Id = Guid.Empty,
+            Data = new()
+            {
+                Title = "New Title"
+            }
+        };
+        
         await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
@@ -28,21 +36,30 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
 
         var listId = await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List"
+            Data = new()
+            {
+                Title = "New List"
+            }
         });
 
         var itemId = await SendAsync(new CreateTodoItemCommand
         {
-            ListId = listId,
-            Title = "New Item"
+            Data = new()
+            {
+                ListId = listId,
+                Title = "New Item"
+            }
         });
 
         var command = new UpdateTodoItemDetailCommand
         {
             Id = itemId,
-            ListId = listId,
-            Note = "This is the note.",
-            Priority = PriorityLevel.High
+            Data = new()
+            {
+                ListId = listId,
+                Note = "This is the note.",
+                Priority = PriorityLevel.High
+            }
         };
 
         await SendAsync(command);
@@ -50,12 +67,12 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
         var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
-        item!.ListId.Should().Be(command.ListId);
-        item.Note.Should().Be(command.Note);
-        item.Priority.Should().Be(command.Priority);
-        item.LastModifiedBy.Should().NotBeNull();
-        item.LastModifiedBy.Should().Be(userId);
-        item.LastModified.Should().NotBeNull();
-        item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item!.ListId.Should().Be(command.Data.ListId);
+        item.Note.Should().Be(command.Data.Note);
+        item.Priority.Should().Be(command.Data.Priority);
+        item.Audit.LastModifiedBy.Should().NotBeNull();
+        item.Audit.LastModifiedBy.Should().Be(userId);
+        item.Audit.LastModified.Should().NotBeNull();
+        item.Audit.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

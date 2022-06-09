@@ -1,18 +1,12 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 
-public record UpdateTodoItemCommand : IRequest
-{
-    public int Id { get; init; }
-
-    public string? Title { get; init; }
-
-    public bool Done { get; init; }
-}
+public record UpdateTodoItemCommand : UpdateCommand<UpdateTodoItemDto>;
 
 public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
 {
@@ -33,8 +27,13 @@ public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemComman
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        entity.Title = request.Title;
-        entity.Done = request.Done;
+        if (!request.ConcurrencyToken?.Equals(entity.ConcurrencyToken!) ?? false)
+        {
+            throw new ConcurrencyException();
+        }
+
+        entity.Title = request.Data!.Title;
+        entity.Done = request.Data!.Done;
 
         await _context.SaveChangesAsync(cancellationToken);
 

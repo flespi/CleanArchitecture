@@ -1,8 +1,8 @@
 ﻿namespace CleanArchitecture.Domain.Entities;
 
-public class TodoItem : BaseAuditableEntity
+public class TodoItem : BaseEntity, IAuditableEntity, IConcurrentEntity, IIdempotentEntity
 {
-    public int ListId { get; set; }
+    public Guid ListId { get; set; }
 
     public string? Title { get; set; }
 
@@ -28,4 +28,10 @@ public class TodoItem : BaseAuditableEntity
     }
 
     public TodoList List { get; set; } = null!;
+
+    public Auditability Audit { get; set; } = null!;
+
+    public byte[]? ConcurrencyToken { get; set; }
+
+    public Guid IdempotencyKey { get; set; } = Guid.NewGuid();
 }

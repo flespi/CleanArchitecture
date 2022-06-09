@@ -27,13 +27,19 @@ public class CreateTodoItemTests : BaseTestFixture
 
         var listId = await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List"
+            Data = new()
+            {
+                Title = "New List"
+            }
         });
 
         var command = new CreateTodoItemCommand
         {
-            ListId = listId,
-            Title = "Tasks"
+            Data = new()
+            {
+                ListId = listId,
+                Title = "Tasks"
+            }
         };
 
         var itemId = await SendAsync(command);
@@ -41,11 +47,11 @@ public class CreateTodoItemTests : BaseTestFixture
         var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
-        item!.ListId.Should().Be(command.ListId);
-        item.Title.Should().Be(command.Title);
-        item.CreatedBy.Should().Be(userId);
-        item.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
-        item.LastModifiedBy.Should().Be(userId);
-        item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item!.ListId.Should().Be(command.Data.ListId);
+        item.Title.Should().Be(command.Data.Title);
+        item.Audit.CreatedBy.Should().Be(userId);
+        item.Audit.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item.Audit.LastModifiedBy.Should().Be(userId);
+        item.Audit.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

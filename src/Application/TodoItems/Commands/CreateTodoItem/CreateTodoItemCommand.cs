@@ -1,18 +1,14 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Events;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
-public record CreateTodoItemCommand : IRequest<int>
-{
-    public int ListId { get; init; }
+public record CreateTodoItemCommand : CreateCommand<CreateTodoItemDto>;
 
-    public string? Title { get; init; }
-}
-
-public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
+public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
 
@@ -21,14 +17,19 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
         _context = context;
     }
 
-    public async Task<int> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = new TodoItem
         {
-            ListId = request.ListId,
-            Title = request.Title,
+            ListId = request.Data!.ListId,
+            Title = request.Data!.Title,
             Done = false
         };
+
+        if (request.IdempotencyKey.HasValue)
+        {
+            entity.IdempotencyKey = request.IdempotencyKey.Value;
+        }
 
         entity.AddDomainEvent(new TodoItemCreatedEvent(entity));
 

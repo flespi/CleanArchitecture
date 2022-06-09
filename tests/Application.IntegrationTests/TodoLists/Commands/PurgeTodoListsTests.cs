@@ -55,17 +55,26 @@ public class PurgeTodoListsTests : BaseTestFixture
 
         await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List #1"
+            Data = new()
+            {
+                Title = "New List #1"
+            }
         });
 
         await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List #2"
+            Data = new()
+            {
+                Title = "New List #2"
+            }
         });
 
         await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List #3"
+            Data = new()
+            {
+                Title = "New List #3"
+            }
         });
 
         await SendAsync(new PurgeTodoListsCommand());

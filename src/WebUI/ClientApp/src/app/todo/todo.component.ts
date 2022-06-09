@@ -1,9 +1,10 @@
 import { Component, TemplateRef, OnInit } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { v4 as uuidv4 } from 'uuid';
 import { TodoListsClient, TodoItemsClient,
-  TodoListDto, TodoItemDto, PriorityLevelDto,
-  CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemCommand
+  TodoListDto, TodoItemDto2, PriorityLevelDto,
+  CreateTodoListDto, UpdateTodoListDto,
+  CreateTodoItemDto, UpdateTodoItemDto
 } from '../web-api-client';
 
 @Component({
@@ -16,7 +17,7 @@ export class TodoComponent implements OnInit {
   lists: TodoListDto[];
   priorityLevels: PriorityLevelDto[];
   selectedList: TodoListDto;
-  selectedItem: TodoItemDto;
+  selectedItem: TodoItemDto2;
   newListEditor: any = {};
   listOptionsEditor: any = {};
   itemDetailsEditor: any = {};
@@ -61,12 +62,11 @@ export class TodoComponent implements OnInit {
 
   addList(): void {
     const list = {
-      id: 0,
       title: this.newListEditor.title,
       items: []
     } as TodoListDto;
 
-    this.listsClient.create(list as CreateTodoListCommand).subscribe(
+    this.listsClient.create(uuidv4(), list as CreateTodoListDto).subscribe(
       result => {
         list.id = result;
         this.lists.push(list);
@@ -96,8 +96,8 @@ export class TodoComponent implements OnInit {
   }
 
   updateListOptions() {
-    const list = this.listOptionsEditor as UpdateTodoListCommand;
-    this.listsClient.update(this.selectedList.id, list).subscribe(
+    const list = this.listOptionsEditor as UpdateTodoListDto;
+    this.listsClient.update(this.selectedList.id, null, list).subscribe(
       () => {
         (this.selectedList.title = this.listOptionsEditor.title),
           this.listOptionsModalRef.hide();
@@ -124,7 +124,7 @@ export class TodoComponent implements OnInit {
   }
 
   // Items
-  showItemDetailsModal(template: TemplateRef<any>, item: TodoItemDto): void {
+  showItemDetailsModal(template: TemplateRef<any>, item: TodoItemDto2): void {
     this.selectedItem = item;
     this.itemDetailsEditor = {
       ...this.selectedItem
@@ -134,8 +134,8 @@ export class TodoComponent implements OnInit {
   }
 
   updateItemDetails(): void {
-    const item = this.itemDetailsEditor as UpdateTodoItemCommand;
-    this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
+    const item = this.itemDetailsEditor as UpdateTodoItemDto;
+    this.itemsClient.updateItemDetails(this.selectedItem.id, null, item).subscribe(
       () => {
         if (this.selectedItem.listId !== this.itemDetailsEditor.listId) {
           this.selectedList.items = this.selectedList.items.filter(
@@ -158,36 +158,35 @@ export class TodoComponent implements OnInit {
   }
 
   addItem() {
-    const item = {
-      id: 0,
+    const item = new TodoItemDto2({
       listId: this.selectedList.id,
       priority: this.priorityLevels[0].value,
       title: '',
-      done: false
-    } as TodoItemDto;
+      done: false,
+    });
 
     this.selectedList.items.push(item);
     const index = this.selectedList.items.length - 1;
     this.editItem(item, 'itemTitle' + index);
   }
 
-  editItem(item: TodoItemDto, inputId: string): void {
+  editItem(item: TodoItemDto2, inputId: string): void {
     this.selectedItem = item;
     setTimeout(() => document.getElementById(inputId).focus(), 100);
   }
 
-  updateItem(item: TodoItemDto, pressedEnter: boolean = false): void {
-    const isNewItem = item.id === 0;
+  updateItem(item: TodoItemDto2, pressedEnter: boolean = false): void {
+    const isNewItem = item.id === undefined;
 
     if (!item.title.trim()) {
       this.deleteItem(item);
       return;
     }
 
-    if (item.id === 0) {
+    if (item.id === undefined) {
       this.itemsClient
-        .create({ ...item, listId: this.selectedList.id
-          } as CreateTodoItemCommand)
+        .create(uuidv4(), { ...item, listId: this.selectedList.id
+          } as CreateTodoItemDto)
         .subscribe(
           result => {
             item.id = result;
@@ -195,7 +194,7 @@ export class TodoComponent implements OnInit {
           error => console.error(error)
         );
     } else {
-      this.itemsClient.update(item.id, item).subscribe(
+      this.itemsClient.update(item.id, null, item).subscribe(
         () => console.log('Update succeeded.'),
         error => console.error(error)
       );
@@ -208,12 +207,12 @@ export class TodoComponent implements OnInit {
     }
   }
 
-  deleteItem(item: TodoItemDto) {
+  deleteItem(item: TodoItemDto2) {
     if (this.itemDetailsModalRef) {
       this.itemDetailsModalRef.hide();
     }
 
-    if (item.id === 0) {
+    if (item.id === undefined) {
       const itemIndex = this.selectedList.items.indexOf(this.selectedItem);
       this.selectedList.items.splice(itemIndex, 1);
     } else {

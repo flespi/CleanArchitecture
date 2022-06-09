@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Enums;
@@ -6,16 +7,7 @@ using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
 
-public record UpdateTodoItemDetailCommand : IRequest
-{
-    public int Id { get; init; }
-
-    public int ListId { get; init; }
-
-    public PriorityLevel Priority { get; init; }
-
-    public string? Note { get; init; }
-}
+public record UpdateTodoItemDetailCommand : UpdateCommand<UpdateTodoItemDetailDto>;
 
 public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
 {
@@ -36,9 +28,14 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        entity.ListId = request.ListId;
-        entity.Priority = request.Priority;
-        entity.Note = request.Note;
+        if (!request.ConcurrencyToken?.Equals(entity.ConcurrencyToken!) ?? false)
+        {
+            throw new ConcurrencyException();
+        }
+
+        entity.ListId = request.Data!.ListId;
+        entity.Priority = request.Data!.Priority;
+        entity.Note = request.Data!.Note;
 
         await _context.SaveChangesAsync(cancellationToken);
 

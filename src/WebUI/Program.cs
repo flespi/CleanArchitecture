@@ -39,6 +39,8 @@ app.UseSwaggerUi3(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 
+app.UseRequestLocalization();
+
 app.UseRouting();
 
 app.UseAuthentication();

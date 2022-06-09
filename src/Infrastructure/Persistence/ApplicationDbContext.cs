@@ -7,6 +7,7 @@ using Duende.IdentityServer.EntityFramework.Options;
 using MediatR;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Options;
 
 namespace CleanArchitecture.Infrastructure.Persistence;
@@ -14,17 +15,17 @@ namespace CleanArchitecture.Infrastructure.Persistence;
 public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, IApplicationDbContext
 {
     private readonly IMediator _mediator;
-    private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
+    private readonly IEnumerable<IInterceptor> _interceptors;
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         IOptions<OperationalStoreOptions> operationalStoreOptions,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor) 
+        IEnumerable<IInterceptor> interceptors)
         : base(options, operationalStoreOptions)
     {
         _mediator = mediator;
-        _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
+        _interceptors = interceptors;
     }
 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
@@ -40,7 +41,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
+        optionsBuilder.AddInterceptors(_interceptors);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

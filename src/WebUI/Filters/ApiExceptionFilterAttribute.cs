@@ -18,6 +18,8 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(ConcurrencyException), HandleConcurrencyException },
+                { typeof(IdempotencyException), HandleConflictException },
             };
     }
 
@@ -115,6 +117,40 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.Result = new ObjectResult(details)
         {
             StatusCode = StatusCodes.Status403Forbidden
+        };
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleConcurrencyException(ExceptionContext context)
+    {
+        var details = new ProblemDetails
+        {
+            Status = StatusCodes.Status412PreconditionFailed,
+            Title = "Precondition failed",
+            Type = "https://tools.ietf.org/html/rfc7232#section-4.2"
+        };
+
+        context.Result = new ObjectResult(details)
+        {
+            StatusCode = StatusCodes.Status412PreconditionFailed
+        };
+
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleConflictException(ExceptionContext context)
+    {
+        var details = new ProblemDetails
+        {
+            Status = StatusCodes.Status409Conflict,
+            Title = "Conflict",
+            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8"
+        };
+
+        context.Result = new ObjectResult(details)
+        {
+            StatusCode = StatusCodes.Status409Conflict
         };
 
         context.ExceptionHandled = true;

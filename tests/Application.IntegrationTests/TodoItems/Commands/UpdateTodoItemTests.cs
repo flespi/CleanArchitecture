@@ -15,7 +15,15 @@ public class UpdateTodoItemTests : BaseTestFixture
     [Test]
     public async Task ShouldRequireValidTodoItemId()
     {
-        var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
+        var command = new UpdateTodoItemCommand
+        {
+            Id = Guid.Empty,
+            Data = new ()
+            {
+                Title = "New Title"
+            }
+        };
+
         await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
@@ -26,19 +34,28 @@ public class UpdateTodoItemTests : BaseTestFixture
 
         var listId = await SendAsync(new CreateTodoListCommand
         {
-            Title = "New List"
+            Data = new()
+            {
+                Title = "New List"
+            }
         });
 
         var itemId = await SendAsync(new CreateTodoItemCommand
         {
-            ListId = listId,
-            Title = "New Item"
+            Data = new()
+            {
+                ListId = listId,
+                Title = "New Item"
+            }
         });
 
         var command = new UpdateTodoItemCommand
         {
             Id = itemId,
-            Title = "Updated Item Title"
+            Data = new ()
+            {
+                Title = "Updated Item Title"
+            }
         };
 
         await SendAsync(command);
@@ -46,10 +63,10 @@ public class UpdateTodoItemTests : BaseTestFixture
         var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
-        item!.Title.Should().Be(command.Title);
-        item.LastModifiedBy.Should().NotBeNull();
-        item.LastModifiedBy.Should().Be(userId);
-        item.LastModified.Should().NotBeNull();
-        item.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item!.Title.Should().Be(command.Data.Title);
+        item.Audit.LastModifiedBy.Should().NotBeNull();
+        item.Audit.LastModifiedBy.Should().Be(userId);
+        item.Audit.LastModified.Should().NotBeNull();
+        item.Audit.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

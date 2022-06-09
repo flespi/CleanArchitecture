@@ -8,8 +8,17 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 {
     public void Configure(EntityTypeBuilder<TodoItem> builder)
     {
+        builder.HasUniqueId();
+
+        builder.HasConcurrencyToken();
+
+        builder.HasIdempotencyKey();
+
         builder.Property(t => t.Title)
             .HasMaxLength(200)
             .IsRequired();
+
+        builder
+            .OwnsOne(b => b.Audit);
     }
 }
