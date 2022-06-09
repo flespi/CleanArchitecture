@@ -1,14 +1,12 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Events;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
-public record CreateTodoItemCommand : IRequest<int>
-{
-    public CreateTodoItemDto? Data { get; init; }
-}
+public record CreateTodoItemCommand : CreateCommand<CreateTodoItemDto>;
 
 public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
 {

@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Enums;
@@ -6,12 +7,7 @@ using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
 
-public record UpdateTodoItemDetailCommand : IRequest
-{
-    public int Id { get; init; }
-
-    public UpdateTodoItemDetailDto? Data { get; init; }
-}
+public record UpdateTodoItemDetailCommand : UpdateCommand<UpdateTodoItemDetailDto>;
 
 public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
 {

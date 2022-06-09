@@ -1,16 +1,12 @@
-﻿using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 
-public record UpdateTodoListCommand : IRequest
-{
-    public int Id { get; init; }
-
-    public UpdateTodoListDto? Data { get; init; }
-}
+public record UpdateTodoListCommand : UpdateCommand<UpdateTodoListDto>;
 
 public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>
 {
