@@ -1,6 +1,7 @@
 ﻿using CleanArchitecture.Application.Common.Behaviours;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
+using CleanArchitecture.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -28,7 +29,7 @@ public class RequestLoggerTests
 
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
 
-        await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, new CancellationToken());
+        await requestLogger.Process(new CreateTodoItemCommand { ListId = Guid.Empty, Title = "title" }, new CancellationToken());
 
         _identityService.Verify(i => i.GetUserNameAsync(It.IsAny<string>()), Times.Once);
     }
@@ -38,7 +39,7 @@ public class RequestLoggerTests
     {
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object, _identityService.Object);
 
-        await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, new CancellationToken());
+        await requestLogger.Process(new CreateTodoItemCommand { ListId = Guid.Empty, Title = "title" }, new CancellationToken());
 
         _identityService.Verify(i => i.GetUserNameAsync(It.IsAny<string>()), Times.Never);
     }

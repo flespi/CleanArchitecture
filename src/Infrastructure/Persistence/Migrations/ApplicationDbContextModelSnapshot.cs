@@ -17,18 +17,17 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("CleanArchitecture.Domain.Entities.TodoItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -45,8 +44,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ListId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ListId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -57,6 +56,12 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("Reminder")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Sequence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"), 1L, 1);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -64,18 +69,24 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
                     b.HasIndex("ListId");
+
+                    b.HasIndex("Sequence")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
 
                     b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Domain.Entities.TodoList", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -89,12 +100,25 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Sequence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"), 1L, 1);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("Sequence")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
 
                     b.ToTable("TodoLists");
                 });
@@ -457,8 +481,9 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 {
                     b.OwnsOne("CleanArchitecture.Domain.ValueObjects.Colour", "Colour", b1 =>
                         {
-                            b1.Property<int>("TodoListId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("TodoListId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Code")
                                 .IsRequired()

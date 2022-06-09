@@ -17,8 +17,8 @@
             "name": "ListId",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           },
@@ -82,8 +82,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "type": "string",
+                  "format": "guid"
                 }
               }
             }
@@ -108,8 +108,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -156,8 +156,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -193,8 +193,8 @@
             "name": "id",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -278,8 +278,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "type": "string",
+                  "format": "guid"
                 }
               }
             }
@@ -304,8 +304,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -340,8 +340,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -388,8 +388,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "guid"
             },
             "x-position": 1
           }
@@ -475,12 +475,12 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -496,8 +496,8 @@
         "additionalProperties": false,
         "properties": {
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -510,8 +510,8 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -527,12 +527,12 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "priority": {
             "$ref": "#/components/schemas/PriorityLevel"
@@ -596,8 +596,8 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -620,12 +620,12 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "listId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
@@ -659,8 +659,8 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "format": "guid"
           },
           "title": {
             "type": "string",
