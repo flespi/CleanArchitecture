@@ -17,7 +17,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface ITodoItemsClient {
     getTodoItemsWithPagination(listId: number | undefined, pageNumber: number | undefined, pageSize: number | undefined): Observable<PaginatedListOfTodoItemBriefDto>;
-    create(command: CreateTodoItemCommand): Observable<number>;
+    create(idempotencyKey: string | null | undefined, command: CreateTodoItemCommand): Observable<number>;
     update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
     updateItemDetails(id: number | undefined, command: UpdateTodoItemDetailCommand): Observable<FileResponse>;
@@ -96,7 +96,7 @@ export class TodoItemsClient implements ITodoItemsClient {
         return _observableOf<PaginatedListOfTodoItemBriefDto>(null as any);
     }
 
-    create(command: CreateTodoItemCommand): Observable<number> {
+    create(idempotencyKey: string | null | undefined, command: CreateTodoItemCommand): Observable<number> {
         let url_ = this.baseUrl + "/api/TodoItems";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -107,6 +107,7 @@ export class TodoItemsClient implements ITodoItemsClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Idempotency-Key": idempotencyKey !== undefined && idempotencyKey !== null ? "" + idempotencyKey : "",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             })
@@ -308,7 +309,7 @@ export class TodoItemsClient implements ITodoItemsClient {
 
 export interface ITodoListsClient {
     get(): Observable<TodosVm>;
-    create(command: CreateTodoListCommand): Observable<number>;
+    create(idempotencyKey: string | null | undefined, command: CreateTodoListCommand): Observable<number>;
     get2(id: number): Observable<FileResponse>;
     update(id: number, command: UpdateTodoListCommand): Observable<FileResponse>;
     delete(id: number): Observable<FileResponse>;
@@ -375,7 +376,7 @@ export class TodoListsClient implements ITodoListsClient {
         return _observableOf<TodosVm>(null as any);
     }
 
-    create(command: CreateTodoListCommand): Observable<number> {
+    create(idempotencyKey: string | null | undefined, command: CreateTodoListCommand): Observable<number> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -386,6 +387,7 @@ export class TodoListsClient implements ITodoListsClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Idempotency-Key": idempotencyKey !== undefined && idempotencyKey !== null ? "" + idempotencyKey : "",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             })
@@ -768,6 +770,7 @@ export interface ITodoItemBriefDto {
 export class CreateTodoItemCommand implements ICreateTodoItemCommand {
     listId?: number;
     title?: string | undefined;
+    idempotencyKey?: string | undefined;
 
     constructor(data?: ICreateTodoItemCommand) {
         if (data) {
@@ -782,6 +785,7 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
         if (_data) {
             this.listId = _data["listId"];
             this.title = _data["title"];
+            this.idempotencyKey = _data["idempotencyKey"];
         }
     }
 
@@ -796,6 +800,7 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
         data = typeof data === 'object' ? data : {};
         data["listId"] = this.listId;
         data["title"] = this.title;
+        data["idempotencyKey"] = this.idempotencyKey;
         return data;
     }
 }
@@ -803,6 +808,7 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
 export interface ICreateTodoItemCommand {
     listId?: number;
     title?: string | undefined;
+    idempotencyKey?: string | undefined;
 }
 
 export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
@@ -1114,6 +1120,7 @@ export interface ITodoItemDto {
 
 export class CreateTodoListCommand implements ICreateTodoListCommand {
     title?: string | undefined;
+    idempotencyKey?: string | undefined;
 
     constructor(data?: ICreateTodoListCommand) {
         if (data) {
@@ -1127,6 +1134,7 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     init(_data?: any) {
         if (_data) {
             this.title = _data["title"];
+            this.idempotencyKey = _data["idempotencyKey"];
         }
     }
 
@@ -1140,12 +1148,14 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["title"] = this.title;
+        data["idempotencyKey"] = this.idempotencyKey;
         return data;
     }
 }
 
 export interface ICreateTodoListCommand {
     title?: string | undefined;
+    idempotencyKey?: string | undefined;
 }
 
 export class UpdateTodoListCommand implements IUpdateTodoListCommand {

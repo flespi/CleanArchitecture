@@ -1,15 +1,18 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using CleanArchitecture.Domain.Events;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
-public record CreateTodoItemCommand : IRequest<int>
+public record CreateTodoItemCommand : IRequest<int>, IIdempotentRequest
 {
     public int ListId { get; init; }
 
     public string? Title { get; init; }
+
+    public Guid? IdempotencyKey { get; set; }
 }
 
 public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
@@ -29,6 +32,11 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
             Title = request.Title,
             Done = false
         };
+
+        if (request.IdempotencyKey.HasValue)
+        {
+            entity.IdempotencyKey = request.IdempotencyKey.Value;
+        }
 
         entity.AddDomainEvent(new TodoItemCreatedEvent(entity));
 

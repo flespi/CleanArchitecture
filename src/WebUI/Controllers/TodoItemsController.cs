@@ -19,8 +19,10 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command)
+    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
     {
+        command.IdempotencyKey = idempotencyKey;
+
         return await Mediator.Send(command);
     }
 

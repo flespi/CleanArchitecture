@@ -1,12 +1,15 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Cqrs;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
-public record CreateTodoListCommand : IRequest<int>
+public record CreateTodoListCommand : IRequest<int>, IIdempotentRequest
 {
     public string? Title { get; init; }
+
+    public Guid? IdempotencyKey { get; set; }
 }
 
 public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, int>
@@ -23,6 +26,11 @@ public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListComman
         var entity = new TodoList();
 
         entity.Title = request.Title;
+
+        if (request.IdempotencyKey.HasValue)
+        {
+            entity.IdempotencyKey = request.IdempotencyKey.Value;
+        }
 
         _context.TodoLists.Add(entity);
 

@@ -64,6 +64,19 @@
           "TodoItems"
         ],
         "operationId": "TodoItems_Create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "x-originalName": "idempotencyKey",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -260,6 +273,19 @@
           "TodoLists"
         ],
         "operationId": "TodoLists_Create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "x-originalName": "idempotencyKey",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -502,6 +528,11 @@
           "title": {
             "type": "string",
             "nullable": true
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           }
         }
       },
@@ -650,6 +681,11 @@
         "properties": {
           "title": {
             "type": "string",
+            "nullable": true
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "guid",
             "nullable": true
           }
         }
