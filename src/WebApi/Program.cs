@@ -39,7 +39,7 @@ app.UseSwaggerUi3(settings =>
 });
 
 app.UseCors(settings => {
-    string[] origins = app.Configuration.GetSection("Cors:Origins").Get<string[]>();
+    string[] origins = app.Configuration.GetValue<string[]>("Cors:Origins");
     settings.WithOrigins(origins).AllowAnyHeader();
 });
 
@@ -52,6 +52,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-// Make the implicit Program class public so test projects can access it
-public partial class Program { }
