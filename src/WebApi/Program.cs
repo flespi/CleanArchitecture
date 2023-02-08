@@ -1,4 +1,4 @@
-using CleanArchitecture.Infrastructure.Persistence;
+using CleanArchitecture.Application.Common.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +19,13 @@ if (app.Environment.IsDevelopment())
     // Initialise and seed database
     using (var scope = app.Services.CreateScope())
     {
-        var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-        await initialiser.InitialiseAsync();
-        await initialiser.SeedAsync();
+        var initialisers = scope.ServiceProvider.GetServices<IDataInitialiser>();
+
+        foreach (var initialiser in initialisers)
+        {
+            await initialiser.InitialiseAsync();
+            await initialiser.SeedAsync();
+        }
     }
 }
 else
@@ -38,14 +42,14 @@ app.UseSwaggerUi3(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 
-app.UseCors(settings => {
-    string[] origins = app.Configuration.GetValue<string[]>("Cors:Origins");
-    settings.WithOrigins(origins).AllowAnyHeader();
-});
-
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
+app.UseCors(settings => {
+    string[] origins = app.Configuration.GetSection("Cors:Origins").Get<string[]>()!;
+    settings.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+});
 
 app.UseAuthorization();
 

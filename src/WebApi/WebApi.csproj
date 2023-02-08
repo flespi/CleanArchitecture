@@ -2,31 +2,40 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <RootNamespace>CleanArchitecture.WebApi</RootNamespace>
-        <AssemblyName>CleanArchitecture.WebApi</AssemblyName>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>efad71c6-743c-4b87-9de8-f26d77146f6d</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Application\Application.csproj" />
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
-
+	
     <ItemGroup>
         <InternalsVisibleTo Include="CleanArchitecture.Application.IntegrationTests" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="6.0.10" />
-        <PackageReference Include="NSwag.AspNetCore" Version="13.16.0" />
-        <PackageReference Include="NSwag.MSBuild" Version="13.16.0">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="7.0.0" />
+        <PackageReference Include="NSwag.AspNetCore" Version="13.18.0" />
+        <PackageReference Include="NSwag.MSBuild" Version="13.18.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <PropertyGroup>
+        <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    </PropertyGroup>
+
+    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
+        <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net60) run nswag.json /variables:Configuration=$(Configuration)" />
+    </Target>
 
 </Project>

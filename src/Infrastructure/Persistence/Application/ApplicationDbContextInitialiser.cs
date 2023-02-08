@@ -1,14 +1,15 @@
-﻿using CleanArchitecture.Domain.Entities;
+﻿using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace CleanArchitecture.Infrastructure.Persistence;
+namespace CleanArchitecture.Infrastructure.Persistence.Application;
 
-public class ApplicationDbContextInitialiser
+public class ApplicationDbContextInitialiser : IDataInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
-    
+
     public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context)
     {
         _logger = logger;

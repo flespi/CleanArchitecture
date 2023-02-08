@@ -1,5 +1,5 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Infrastructure.Persistence;
+using CleanArchitecture.Infrastructure.Persistence.Application;
 using CleanArchitecture.WebApi.Filters;
 using CleanArchitecture.WebApi.Services;
 using FluentValidation.AspNetCore;

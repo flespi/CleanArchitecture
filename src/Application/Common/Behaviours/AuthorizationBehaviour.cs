@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿﻿using System.Reflection;
+using Balea.Abstractions;
 using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Security;
@@ -9,11 +10,14 @@ namespace CleanArchitecture.Application.Common.Behaviours;
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly ICurrentUserService _currentUserService;
+    private readonly IPermissionEvaluator _permissionEvaluator;
 
     public AuthorizationBehaviour(
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IPermissionEvaluator permissionEvaluator)
     {
         _currentUserService = currentUserService;
+        _permissionEvaluator = permissionEvaluator;
     }
 
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
@@ -23,7 +27,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         if (authorizeAttributes.Any())
         {
             // Must be authenticated user
-            if (_currentUserService.UserId == null)
+            if (!_currentUserService.User?.Identity?.IsAuthenticated ?? true)
             {
                 throw new UnauthorizedAccessException();
             }
@@ -39,9 +43,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 {
                     foreach (var role in roles)
                     {
-                        // TODO check role
-                        // var isInRole = await _identityService.IsInRoleAsync(_currentUserService.UserId, role.Trim());
-                        var isInRole = true;
+                        var isInRole = _currentUserService.User!.IsInRole(role.Trim());
 
                         if (isInRole)
                         {
@@ -60,13 +62,12 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 
             // Policy-based authorization
             var authorizeAttributesWithPolicies = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Policy));
+
             if (authorizeAttributesWithPolicies.Any())
             {
                 foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
                 {
-                    // TODO check policy
-                    // var authorized = await _identityService.AuthorizeAsync(_currentUserService.UserId, policy);
-                    var authorized = true;
+                    var authorized = await _permissionEvaluator.HasPermissionAsync(_currentUserService.User, policy);
 
                     if (!authorized)
                     {

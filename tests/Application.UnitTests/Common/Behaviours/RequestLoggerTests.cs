@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.Common.Behaviours;
+﻿using System.Security.Claims;
+using CleanArchitecture.Application.Common.Behaviours;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public class RequestLoggerTests
     [Test]
     public async Task ShouldCallGetUserNameAsyncOnceIfAuthenticated()
     {
-        _currentUserService.Setup(x => x.UserId).Returns(Guid.NewGuid().ToString());
+        _currentUserService.Setup(x => x.User).Returns(new ClaimsPrincipal());
 
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object);
 

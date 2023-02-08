@@ -7,5 +7,5 @@ export const authSettings : UserManagerSettings = {
     "redirect_uri": `${location.origin}/authentication/login-callback`,
     "post_logout_redirect_uri": `${location.origin}/authentication/logout-callback`,
     "response_type": "code",
-    "scope": "openid profile CleanArchitecture_API"
+    "scope": "openid profile CleanArchitecture"
 };

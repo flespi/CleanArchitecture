@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.Claims;
 using CleanArchitecture.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            var userId = _currentUserService.UserId ?? string.Empty;
+            var userId = _currentUserService.User?.GetSubjectId() ?? string.Empty;
 
             _logger.LogWarning("CleanArchitecture Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
                 requestName, elapsedMilliseconds, userId, request);

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CleanArchitecture.Infrastructure.Persistence.Configurations;
+namespace CleanArchitecture.Infrastructure.Persistence.Application.Configurations;
 
 public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 {

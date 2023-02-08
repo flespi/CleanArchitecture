@@ -1,6 +1,8 @@
-﻿namespace CleanArchitecture.Application.Common.Interfaces;
+﻿using System.Security.Claims;
+
+namespace CleanArchitecture.Application.Common.Interfaces;
 
 public interface ICurrentUserService
 {
-    string? UserId { get; }
+    ClaimsPrincipal? User { get; }
 }

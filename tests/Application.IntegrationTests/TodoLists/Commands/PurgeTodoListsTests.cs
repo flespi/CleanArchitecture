@@ -10,7 +10,6 @@ namespace CleanArchitecture.Application.IntegrationTests.TodoLists.Commands;
 
 using static Testing;
 
-[Ignore("Pending adjustments")]
 public class PurgeTodoListsTests : BaseTestFixture
 {
     [Test]

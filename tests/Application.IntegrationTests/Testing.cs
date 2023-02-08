@@ -1,5 +1,10 @@
-﻿using CleanArchitecture.Infrastructure.Persistence;
+﻿using System.Security.Claims;
+using Balea;
+using CleanArchitecture.Infrastructure.Persistence.Application;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +21,7 @@ public partial class Testing
     private static IConfiguration _configuration = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
     private static Checkpoint _checkpoint = null!;
-    private static string? _currentUserId;
+    private static ClaimsPrincipal? _currentUser;
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -40,9 +45,9 @@ public partial class Testing
         return await mediator.Send(request);
     }
 
-    public static string? GetCurrentUserId()
+    public static ClaimsPrincipal? GetCurrentUser()
     {
-        return _currentUserId;
+        return _currentUser;
     }
 
     public static async Task<string> RunAsDefaultUserAsync()
@@ -57,15 +62,46 @@ public partial class Testing
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
-        _currentUserId = userName;
+        var claims = new List<Claim>
+        {
+            new(JwtClaimTypes.Subject, userName)
+        };
+
+        foreach (var role in roles)
+        {
+            claims.Add(new(JwtClaimTypes.Role, role));
+        }
+
+        var identity = new ClaimsIdentity(claims, "Password", JwtClaimTypes.Name, JwtClaimTypes.Role);
+
+        var principal = new ClaimsPrincipal();
+        principal.AddIdentity(identity);
+
+        await AuthenticateAsync(principal);
+
+        _currentUser = principal;
+
         return userName;
+    }
+
+    private static async Task AuthenticateAsync(ClaimsPrincipal principal)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var policyProvider = scope.ServiceProvider.GetRequiredService<IAuthorizationPolicyProvider>();
+        var policyEvaluator = scope.ServiceProvider.GetRequiredService<IPolicyEvaluator>();
+
+        var defaultPolicy = await policyProvider.GetDefaultPolicyAsync();
+        var httpContext = new DefaultHttpContext { User = principal };
+
+        var result = await policyEvaluator.AuthenticateAsync(defaultPolicy, httpContext);
     }
 
     public static async Task ResetState()
     {
         await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
 
-        _currentUserId = null;
+        _currentUser = null;
     }
 
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)

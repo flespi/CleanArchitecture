@@ -5,7 +5,7 @@ using CleanArchitecture.Infrastructure.Persistence.Interceptors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitecture.Infrastructure.Persistence;
+namespace CleanArchitecture.Infrastructure.Persistence.Application;
 
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
@@ -15,7 +15,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor) 
+        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor)
         : base(options)
     {
         _mediator = mediator;

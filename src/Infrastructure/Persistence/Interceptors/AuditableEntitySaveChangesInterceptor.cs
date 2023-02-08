@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using System.Security.Claims;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -41,13 +42,13 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedBy = _currentUserService.UserId;
+                entry.Entity.CreatedBy = _currentUserService.User?.GetSubjectId();
                 entry.Entity.Created = _dateTime.Now;
             } 
 
             if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
             {
-                entry.Entity.LastModifiedBy = _currentUserService.UserId;
+                entry.Entity.LastModifiedBy = _currentUserService.User?.GetSubjectId();
                 entry.Entity.LastModified = _dateTime.Now;
             }
         }
