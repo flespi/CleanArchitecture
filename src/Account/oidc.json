@@ -1,0 +1,42 @@
+{
+    "Oidc": {
+        "Scopes": [
+            {
+                "Name": "CleanArchitecture",
+                "DisplayName": "CleanArchitecture",
+                "Resources": [
+                    "CleanArchitecture_API"
+                ]
+            }
+        ],
+        "Clients": [
+            {
+                "ClientId": "CleanArchitecture_SPA",
+                "ClientName": "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+                "ConsentType": "implicit",
+                "DisplayName": "SPA client application",
+                "RedirectUris": [
+                    "https://localhost:44447/authentication/login-callback"
+                ],
+                "PostLogoutRedirectUris": [
+                    "https://localhost:44447/authentication/logout-callback"
+                ],
+                "Permissions": [
+                    "ept:authorization",
+                    "ept:logout",
+                    "ept:token",
+                    "gt:authorization_code",
+                    "gt:refresh_token",
+                    "rst:code",
+                    "scp:email",
+                    "scp:profile",
+                    "scp:roles",
+                    "scp:CleanArchitecture"
+                ],
+                "Requirements": [
+                    "ft:pkce"
+                ]
+            }
+        ]
+    }
+}
