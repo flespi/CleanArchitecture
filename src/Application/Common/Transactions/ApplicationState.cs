@@ -9,7 +9,7 @@ public class ApplicationState : ITransactional
         _transactionals = transactionals;
     }
 
-    public async Task<ITransaction> BeginTransactionAsync()
+    public async Task<ITransaction?> BeginTransactionAsync()
     {
         var transactions = await CreateTransactions().ToListAsync();
         return new ApplicationStateTransaction(transactions);
@@ -18,7 +18,12 @@ public class ApplicationState : ITransactional
         {
             foreach (var transactional in _transactionals)
             {
-                yield return await transactional.BeginTransactionAsync();
+                var transaction = await transactional.BeginTransactionAsync();
+
+                if (transaction is not null)
+                {
+                    yield return transaction;
+                }
             }
         }
     }

@@ -47,6 +47,7 @@ public static class DeletableExtensions
 {
     public static IEnumerable<EntityEntry> GetChangedOwnedEntities(this EntityEntry entry) =>
         entry.References.Select(r => r.TargetEntry!)
+            .Where(e => e is not null)
             .Where(e => e.Metadata.IsOwned());
 
 }

@@ -17,7 +17,7 @@ public class TransactionalBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         await using var trasaction = await _state.BeginTransactionAsync();
 
         var result = await next();
-        await trasaction.CommitAsync();
+        await trasaction!.CommitAsync();
         return result;
     }
 }

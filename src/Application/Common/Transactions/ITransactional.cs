@@ -2,5 +2,5 @@
 
 public interface ITransactional
 {
-    Task<ITransaction> BeginTransactionAsync();
+    Task<ITransaction?> BeginTransactionAsync();
 }

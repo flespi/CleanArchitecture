@@ -20,8 +20,10 @@ public class EntityFrameworkDb : ITransactional
         _context = context;
     }
 
-    public async Task<ITransaction> BeginTransactionAsync()
+    public async Task<ITransaction?> BeginTransactionAsync()
     {
+        if (_context.Database.IsInMemory()) return null;
+
         var transaction = await _context.Database.BeginTransactionAsync();
         return new EntityFrameworkTransaction(transaction);
     }
