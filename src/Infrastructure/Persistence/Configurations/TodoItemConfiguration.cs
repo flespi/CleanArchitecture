@@ -14,6 +14,8 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 
         builder.HasIdempotencyKey();
 
+        builder.HasDeletedFlag();
+
         builder.Property(t => t.Title)
             .HasMaxLength(200)
             .IsRequired();

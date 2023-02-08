@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 {
+    /// <inheritdoc />
     public partial class InitialCreate : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -111,13 +113,14 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Colour_Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Audit_Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Audit_CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Audit_LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Audit_LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ColourCode = table.Column<string>(name: "Colour_Code", type: "nvarchar(max)", nullable: false),
+                    AuditCreated = table.Column<DateTime>(name: "Audit_Created", type: "datetime2", nullable: false),
+                    AuditCreatedBy = table.Column<string>(name: "Audit_CreatedBy", type: "nvarchar(max)", nullable: true),
+                    AuditLastModified = table.Column<DateTime>(name: "Audit_LastModified", type: "datetime2", nullable: true),
+                    AuditLastModifiedBy = table.Column<string>(name: "Audit_LastModifiedBy", type: "nvarchar(max)", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     IdempotencyKey = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1")
                 },
@@ -125,6 +128,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_TodoLists", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
+                    table.UniqueConstraint("AK_TodoLists_Sequence", x => x.Sequence)
+                        .Annotation("SqlServer:Clustered", true);
                 });
 
             migrationBuilder.CreateTable(
@@ -244,12 +249,13 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     Priority = table.Column<int>(type: "int", nullable: false),
                     Reminder = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Done = table.Column<bool>(type: "bit", nullable: false),
-                    Audit_Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Audit_CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Audit_LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Audit_LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuditCreated = table.Column<DateTime>(name: "Audit_Created", type: "datetime2", nullable: false),
+                    AuditCreatedBy = table.Column<string>(name: "Audit_CreatedBy", type: "nvarchar(max)", nullable: true),
+                    AuditLastModified = table.Column<DateTime>(name: "Audit_LastModified", type: "datetime2", nullable: true),
+                    AuditLastModifiedBy = table.Column<string>(name: "Audit_LastModifiedBy", type: "nvarchar(max)", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     IdempotencyKey = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1")
                 },
@@ -257,6 +263,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_TodoItems", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
+                    table.UniqueConstraint("AK_TodoItems_Sequence", x => x.Sequence)
+                        .Annotation("SqlServer:Clustered", true);
                     table.ForeignKey(
                         name: "FK_TodoItems_TodoLists_ListId",
                         column: x => x.ListId,
@@ -352,26 +360,13 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 column: "ListId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_Sequence",
-                table: "TodoItems",
-                column: "Sequence",
-                unique: true)
-                .Annotation("SqlServer:Clustered", true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TodoLists_IdempotencyKey",
                 table: "TodoLists",
                 column: "IdempotencyKey",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TodoLists_Sequence",
-                table: "TodoLists",
-                column: "Sequence",
-                unique: true)
-                .Annotation("SqlServer:Clustered", true);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

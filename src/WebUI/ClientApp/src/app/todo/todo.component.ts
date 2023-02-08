@@ -1,6 +1,5 @@
 import { Component, TemplateRef, OnInit } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { v4 as uuidv4 } from 'uuid';
 import { TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto2, PriorityLevelDto,
   CreateTodoListDto, UpdateTodoListDto,
@@ -66,7 +65,7 @@ export class TodoComponent implements OnInit {
       items: []
     } as TodoListDto;
 
-    this.listsClient.create(uuidv4(), list as CreateTodoListDto).subscribe(
+    this.listsClient.create(crypto.randomUUID(), list as CreateTodoListDto).subscribe(
       result => {
         list.id = result;
         this.lists.push(list);
@@ -185,7 +184,7 @@ export class TodoComponent implements OnInit {
 
     if (item.id === undefined) {
       this.itemsClient
-        .create(uuidv4(), { ...item, listId: this.selectedList.id
+        .create(crypto.randomUUID(), { ...item, listId: this.selectedList.id
           } as CreateTodoItemDto)
         .subscribe(
           result => {

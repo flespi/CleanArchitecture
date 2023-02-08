@@ -17,6 +17,8 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IInterceptor, UniqueEntitySaveChangesInterceptor>();
+        services.AddScoped<IInterceptor, DeletableEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, ConcurrentEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, IdempotentEntitySaveChangesInterceptor>();

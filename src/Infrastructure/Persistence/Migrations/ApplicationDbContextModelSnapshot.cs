@@ -17,10 +17,10 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("ProductVersion", "7.0.0-rc.2.22472.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("CleanArchitecture.Domain.Entities.TodoItem", b =>
                 {
@@ -40,6 +40,9 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("IdempotencyKey")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("ListId")
                         .HasColumnType("uniqueidentifier");
 
@@ -56,7 +59,7 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"));
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -67,15 +70,14 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
+                    b.HasAlternateKey("Sequence");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasAlternateKey("Sequence"));
+
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
 
                     b.HasIndex("ListId");
-
-                    b.HasIndex("Sequence")
-                        .IsUnique();
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
 
                     b.ToTable("TodoItems");
                 });
@@ -95,11 +97,14 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("IdempotencyKey")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Sequence")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"));
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -110,13 +115,12 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
+                    b.HasAlternateKey("Sequence");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasAlternateKey("Sequence"));
+
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
-
-                    b.HasIndex("Sequence")
-                        .IsUnique();
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
 
                     b.ToTable("TodoLists");
                 });
@@ -269,7 +273,7 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Use");
 
-                    b.ToTable("Keys");
+                    b.ToTable("Keys", (string)null);
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
@@ -360,7 +364,7 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -385,7 +389,7 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");

@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitecture.Domain.Entities;
 
-public class TodoItem : BaseEntity, IAuditableEntity, IConcurrentEntity, IIdempotentEntity
+public class TodoItem : BaseEntity, IAuditableEntity, IDeletableEntity, IConcurrentEntity, IIdempotentEntity
 {
     public Guid ListId { get; set; }
 
@@ -34,4 +34,6 @@ public class TodoItem : BaseEntity, IAuditableEntity, IConcurrentEntity, IIdempo
     public byte[]? ConcurrencyToken { get; set; }
 
     public Guid IdempotencyKey { get; set; } = Guid.NewGuid();
+
+    public bool IsDeleted { get; set; }
 }

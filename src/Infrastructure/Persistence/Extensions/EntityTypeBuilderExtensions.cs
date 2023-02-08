@@ -12,9 +12,8 @@ public static class EntityTypeBuilderExtensions
         builder.HasKey(e => e.Id)
             .IsClustered(false);
 
-        builder.HasIndex(e => e.Sequence)
-            .IsUnique()
-            .IsClustered();
+        builder.HasAlternateKey(e => e.Sequence)
+            .IsClustered(true);
 
         builder.Property(e => e.Id)
             .HasDefaultValueSql("(newid())");
@@ -36,6 +35,14 @@ public static class EntityTypeBuilderExtensions
         where TEntity : class, IIdempotentEntity
     {
         builder.HasIndex(x => x.IdempotencyKey).IsUnique();
+        return builder;
+    }
+
+    public static EntityTypeBuilder<TEntity> HasDeletedFlag<TEntity>(this EntityTypeBuilder<TEntity> builder)
+        where TEntity : class, IDeletableEntity
+    {
+        builder.Property(x => x.IsDeleted);
+        builder.HasQueryFilter(x => !x.IsDeleted);
         return builder;
     }
 }
