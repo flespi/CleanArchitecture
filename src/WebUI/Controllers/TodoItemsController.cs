@@ -31,7 +31,8 @@ public class TodoItemsController : ApiControllerBase
     {
         var response = await Mediator.Send(new GetTodoItemQuery { Id = id });
 
-        Response.Headers.Add(HeaderNames.ETag, response.ConcurrencyToken);
+        Response.Headers.Add(HeaderNames.ETag, response.ConcurrencyToken.ToString());
+
         return response.Result!;
     }
 

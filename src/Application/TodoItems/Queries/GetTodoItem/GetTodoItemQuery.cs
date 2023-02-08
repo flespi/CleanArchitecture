@@ -2,7 +2,6 @@
 using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Models;
-using CleanArchitecture.Application.Common.Types;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
@@ -34,12 +33,8 @@ public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoIte
             throw new NotFoundException(nameof(TodoItem), request.Id);
         }
 
-        Hex? concurrencyToken = entity.ConcurrencyToken;
+        var result = _mapper.Map<TodoItemDto>(entity);
 
-        return new Versioned<TodoItemDto>
-        {
-            Result = _mapper.Map<TodoItemDto>(entity),
-            ConcurrencyToken = concurrencyToken?.ToString()
-        };
+        return Versioned.FromResult(result, entity.ConcurrencyToken!);
     }
 }
