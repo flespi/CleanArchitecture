@@ -1,10 +1,10 @@
 ﻿namespace CleanArchitecture.Application.Common.Transactions;
 
-public class ApplicationState : ITransactional
+public class GlobalState : ITransactional
 {
     private readonly IEnumerable<ITransactional> _transactionals;
 
-    public ApplicationState(IEnumerable<ITransactional> transactionals)
+    public GlobalState(IEnumerable<ITransactional> transactionals)
     {
         _transactionals = transactionals;
     }
@@ -12,7 +12,7 @@ public class ApplicationState : ITransactional
     public async Task<ITransaction> BeginTransactionAsync()
     {
         var transactions = await CreateTransactions().ToListAsync();
-        return new ApplicationStateTransaction(transactions);
+        return new GlobalTransaction(transactions);
 
         async IAsyncEnumerable<ITransaction> CreateTransactions()
         {
