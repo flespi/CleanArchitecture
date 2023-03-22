@@ -2,5 +2,5 @@
 
 public interface IIdempotentRequest
 {
-    public Guid? IdempotencyKey { get; set; }
+    public Guid? IdempotencyKey { get; }
 }
