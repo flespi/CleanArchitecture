@@ -1,10 +1,12 @@
 ﻿using CleanArchitecture.Application.Common.Cqrs;
 using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Application.Common.Transactions;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
+[Transactional]
 public record CreateTodoListCommand : CreateCommand<CreateTodoListDto>;
 
 public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, Guid>

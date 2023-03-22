@@ -1,12 +1,14 @@
 ﻿using CleanArchitecture.Application.Common.Cqrs;
 using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Application.Common.Transactions;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 
+[Transactional]
 public record DeleteTodoListCommand : DeleteCommand;
 
 public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>

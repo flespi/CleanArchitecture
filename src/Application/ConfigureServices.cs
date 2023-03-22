@@ -19,7 +19,7 @@ public static class ConfigureServices
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionalBehaviour<,>));
-        services.AddScoped<ApplicationState>();
+        services.AddScoped<GlobalState>();
 
         return services;
     }

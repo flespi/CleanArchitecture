@@ -1,10 +1,10 @@
 ﻿namespace CleanArchitecture.Application.Common.Transactions;
 
-public class ApplicationStateTransaction : Transaction
+public class GlobalTransaction : Transaction
 {
     private readonly IEnumerable<ITransaction> _transactions;
 
-    public ApplicationStateTransaction(IEnumerable<ITransaction> transactions)
+    public GlobalTransaction(IEnumerable<ITransaction> transactions)
     {
         _transactions = transactions;
     }
