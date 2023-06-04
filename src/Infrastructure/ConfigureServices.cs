@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddScoped<IInterceptor, UniqueEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, DeletableEntitySaveChangesInterceptor>();
@@ -23,17 +23,20 @@ public static class ConfigureServices
         services.AddScoped<IInterceptor, ConcurrentEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, IdempotentEntitySaveChangesInterceptor>();
 
-        if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+        services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("CleanArchitectureDb"));
-        }
-        else
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+            {
+                options.UseInMemoryDatabase("CleanArchitectureDb");
+            }
+            else
+            {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-        }
+                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+            }
+        });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
