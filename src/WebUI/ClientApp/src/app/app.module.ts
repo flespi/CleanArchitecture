@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ModalModule } from 'ngx-bootstrap/modal';
 
-import { environment } from 'src/environments/environment';
 import { authSettings } from './app-auth-config'
 import { API_BASE_URL } from './web-api-client';
 
@@ -19,9 +18,9 @@ import { TokenComponent } from './token/token.component';
 
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import { AUTH_SETTINGS } from 'src/api-authorization/authorize.config';
-import { AuthorizeGuard } from 'src/api-authorization/authorize.guard';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { APP_SETTINGS, AppSettings } from './app.settings';
 
 @NgModule({
   declarations: [
@@ -44,8 +43,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
-    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
-    { provide: AUTH_SETTINGS, useValue: authSettings },
+    { provide: API_BASE_URL, useFactory: (settings: AppSettings) => settings.apiBaseUrl, deps: [APP_SETTINGS] },
+    { provide: AUTH_SETTINGS, useFactory: (settings: AppSettings) => authSettings(settings.auth), deps: [APP_SETTINGS] },
   ],
   bootstrap: [AppComponent]
 })

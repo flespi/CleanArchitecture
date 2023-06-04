@@ -4,17 +4,24 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
-export function getBaseUrl() {
-  return document.getElementsByTagName('base')[0].href;
-}
-
-const providers = [
-  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
-];
+import { APP_SETTINGS } from './app/app.settings';
+import { settings } from './settings/settings';
 
 if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic(providers).bootstrapModule(AppModule)
+const settingsUrl = '/assets/settings.json';
+
+const loadSettings = environment.production
+  ? fetch(settingsUrl).then(res => res.json())
+  : Promise.resolve(settings)
+
+loadSettings.then(settings => {
+  const providers = [
+    { provide: APP_SETTINGS, useValue: settings }
+  ];
+
+  platformBrowserDynamic(providers).bootstrapModule(AppModule)
   .catch(err => console.log(err));
+});
