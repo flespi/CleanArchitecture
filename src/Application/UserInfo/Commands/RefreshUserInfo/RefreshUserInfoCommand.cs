@@ -20,9 +20,8 @@ public class RefreshUserInfoCommandHandler : IRequestHandler<RefreshUserInfoComm
         _authorization = authorization;
     }
 
-    public async Task<Unit> Handle(RefreshUserInfoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RefreshUserInfoCommand request, CancellationToken cancellationToken)
     {
         await _authorization.CreateOrUpdateAsync(_currentUserService.User!, cancellationToken);
-        return Unit.Value;
     }
 }
