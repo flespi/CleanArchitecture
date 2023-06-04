@@ -7,6 +7,7 @@ using CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
 namespace CleanArchitecture.WebUI.Controllers;
@@ -37,7 +38,10 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(Guid id, UpdateTodoItemDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Update(Guid id, UpdateTodoItemDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
         await Mediator.Send(new UpdateTodoItemCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
 
@@ -45,7 +49,10 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPut("{id}/details")]
-    public async Task<ActionResult> UpdateItemDetails(Guid id, UpdateTodoItemDetailDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> UpdateItemDetails(Guid id, UpdateTodoItemDetailDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
     {
         await Mediator.Send(new UpdateTodoItemDetailCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
 
@@ -53,7 +60,9 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Delete(Guid id)
     {
         await Mediator.Send(new DeleteTodoItemCommand { Id = id });
 

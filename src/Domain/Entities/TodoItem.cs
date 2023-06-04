@@ -18,7 +18,7 @@ public class TodoItem : BaseEntity, IAuditableEntity, IDeletableEntity, IConcurr
         get => _done;
         set
         {
-            if (value == true && _done == false)
+            if (value && !_done)
             {
                 AddDomainEvent(new TodoItemCompletedEvent(this));
             }

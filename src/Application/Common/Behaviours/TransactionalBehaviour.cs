@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using CleanArchitecture.Application.Common.Security;
 using CleanArchitecture.Application.Common.Transactions;
 using MediatR;
 
@@ -14,7 +13,7 @@ public class TransactionalBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         _state = state;
     }
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var transactionalAttributes = request.GetType().GetCustomAttributes<TransactionalAttribute>();
 

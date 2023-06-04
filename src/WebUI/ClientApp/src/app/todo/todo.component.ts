@@ -184,7 +184,7 @@ export class TodoComponent implements OnInit {
 
     if (item.id === undefined) {
       this.itemsClient
-        .create(crypto.randomUUID(), { ...item, listId: this.selectedList.id
+        .create(crypto.randomUUID(), { title: item.title, listId: this.selectedList.id
           } as CreateTodoItemDto)
         .subscribe(
           result => {
@@ -193,7 +193,7 @@ export class TodoComponent implements OnInit {
           error => console.error(error)
         );
     } else {
-      this.itemsClient.update(item.id, null, item).subscribe(
+      this.itemsClient.update(item.id, null, item as UpdateTodoItemDto).subscribe(
         () => console.log('Update succeeded.'),
         error => console.error(error)
       );
