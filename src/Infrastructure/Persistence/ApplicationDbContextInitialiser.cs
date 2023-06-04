@@ -66,7 +66,10 @@ public class ApplicationDbContextInitialiser
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
             await _userManager.CreateAsync(administrator, "Administrator1!");
-            await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            {
+                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
+            }
         }
 
         // Default data
@@ -78,10 +81,10 @@ public class ApplicationDbContextInitialiser
                 Title = "Todo List",
                 Items =
                 {
-                    new TodoItem { Title = "Make a todo list" },
-                    new TodoItem { Title = "Check off the first item" },
-                    new TodoItem { Title = "Realise you've already done two things on the list!"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap" },
+                    new TodoItem { Title = "Make a todo list 📃" },
+                    new TodoItem { Title = "Check off the first item ✅" },
+                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
+                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
                 }
             });
 

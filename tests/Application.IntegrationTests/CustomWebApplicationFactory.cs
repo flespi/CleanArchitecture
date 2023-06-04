@@ -2,15 +2,14 @@
 using CleanArchitecture.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests;
 
-public class CustomWebApplicationFactory : WebApplicationFactory<Program>
+internal class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly ICurrentUserService _currentUserService;
 
@@ -31,16 +30,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             configurationBuilder.AddConfiguration(integrationConfig);
         });
 
-        builder.ConfigureServices((builder, services) =>
+        builder.ConfigureTestServices(services =>
         {
-            services
-                .Remove<ICurrentUserService>()
-                .AddSingleton(_currentUserService);
+            services.AddSingleton(_currentUserService);
 
             services
                 .Remove<DbContextOptions<ApplicationDbContext>>()
                 .AddDbContext<ApplicationDbContext>((sp, options) =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+                    options.UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection"),
                         builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
         });
     }

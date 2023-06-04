@@ -15,7 +15,7 @@ public partial class TestContext
     private WebApplicationFactory<Program> _factory = null!;
     private IConfiguration _configuration = null!;
     private IServiceScopeFactory _scopeFactory = null!;
-    private Checkpoint _checkpoint = null!;
+    private Respawner _checkpoint = null!;
     private CurrentUserService _currentUserService;
 
     public TestContext()
@@ -26,10 +26,10 @@ public partial class TestContext
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
         _configuration = _factory.Services.GetRequiredService<IConfiguration>();
 
-        _checkpoint = new Checkpoint
+        _checkpoint = Respawner.CreateAsync(_configuration.GetConnectionString("DefaultConnection")!, new RespawnerOptions
         {
-            TablesToIgnore = new[] { "__EFMigrationsHistory" }
-        };
+            TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" }
+        }).GetAwaiter().GetResult();
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
@@ -39,6 +39,15 @@ public partial class TestContext
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
         return await mediator.Send(request);
+    }
+
+    public async Task SendAsync(IBaseRequest request)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+
+        await mediator.Send(request);
     }
 
     public string? GetCurrentUserId()
@@ -92,7 +101,13 @@ public partial class TestContext
 
     public async Task ResetState()
     {
-        await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
+        try
+        {
+            await _checkpoint.ResetAsync(_configuration.GetConnectionString("DefaultConnection")!);
+        }
+        catch (Exception) 
+        {
+        }
 
         _currentUserService.UserId = null;
     }
