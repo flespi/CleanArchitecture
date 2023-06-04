@@ -42,7 +42,10 @@ public static class EntityTypeBuilderExtensions
         where TEntity : class, IDeletableEntity
     {
         builder.Property(x => x.IsDeleted);
+        builder.HasIndex(x => x.IsDeleted);
+
         builder.HasQueryFilter(x => !x.IsDeleted);
+
         return builder;
     }
 }

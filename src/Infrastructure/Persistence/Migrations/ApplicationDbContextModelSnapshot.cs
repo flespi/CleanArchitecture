@@ -77,6 +77,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
 
+                    b.HasIndex("IsDeleted");
+
                     b.HasIndex("ListId");
 
                     b.ToTable("TodoItems");
@@ -121,6 +123,8 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IdempotencyKey")
                         .IsUnique();
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("TodoLists");
                 });

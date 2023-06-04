@@ -355,6 +355,11 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_TodoItems_IsDeleted",
+                table: "TodoItems",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TodoItems_ListId",
                 table: "TodoItems",
                 column: "ListId");
@@ -364,6 +369,11 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 table: "TodoLists",
                 column: "IdempotencyKey",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TodoLists_IsDeleted",
+                table: "TodoLists",
+                column: "IsDeleted");
         }
 
         /// <inheritdoc />

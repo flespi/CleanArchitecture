@@ -1,6 +1,5 @@
 ﻿using CleanArchitecture.Domain.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CleanArchitecture.Infrastructure.Persistence.Interceptors;
@@ -41,13 +40,4 @@ public class DeletableEntitySaveChangesInterceptor : SaveChangesInterceptor
             }
         }
     }
-}
-
-public static class DeletableExtensions
-{
-    public static IEnumerable<EntityEntry> GetChangedOwnedEntities(this EntityEntry entry) =>
-        entry.References.Select(r => r.TargetEntry!)
-            .Where(e => e is not null)
-            .Where(e => e.Metadata.IsOwned());
-
 }
