@@ -15,31 +15,40 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
-        if (configuration.GetValue<bool>("UseInMemoryDatabase"))
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("CleanArchitecture"));
+        services.AddDbContext<ApplicationDbContext>((sp, options) => {
+            var configuration = sp.GetRequiredService<IConfiguration>();
 
-            services.AddDbContext<AuthorizationDbContext>(options =>
-                options.UseInMemoryDatabase("Authorization"));
-        }
-        else
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+            {
+                options.UseInMemoryDatabase("CleanArchitecture");
+            }
+            else
+            {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+            }
+        });
 
-            services.AddDbContext<AuthorizationDbContext>(options =>
+        services.AddDbContext<AuthorizationDbContext>((sp, options) => {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+            {
+                options.UseInMemoryDatabase("Authorization");
+            }
+            else
+            {
                 options.UseSqlServer(configuration.GetConnectionString("Authorization"),
-                    builder => builder.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName)));
-        }
+                    builder => builder.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName));
+            }
+        });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
@@ -52,10 +61,11 @@ public static class ConfigureServices
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                configuration.GetSection("Authentication").Bind(options);
+            .AddJwtBearer();
 
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .BindConfiguration("Authentication")
+            .PostConfigure(options => {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     RoleClaimType = JwtClaimTypes.Role,

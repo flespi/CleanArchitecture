@@ -1,9 +1,7 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Infrastructure.Persistence.Application;
-using CleanArchitecture.Infrastructure.Persistence.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -26,24 +24,9 @@ internal class CustomWebApplicationFactory : WebApplicationFactory<Program>
             configurationBuilder.AddConfiguration(integrationConfig);
         });
 
-        builder.ConfigureServices((builder, services) =>
+        builder.ConfigureTestServices(services =>
         {
-            services
-                .Remove<ICurrentUserService>()
-                .AddTransient(provider => Mock.Of<ICurrentUserService>(s =>
-                    s.User == GetCurrentUser()));
-
-            services
-                .Remove<DbContextOptions<ApplicationDbContext>>()
-                .AddDbContext<ApplicationDbContext>((sp, options) =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-                        builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-
-            services
-                .Remove<DbContextOptions<AuthorizationDbContext>>()
-                .AddDbContext<AuthorizationDbContext>((sp, options) =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("Authorization"),
-                        builder => builder.MigrationsAssembly(typeof(AuthorizationDbContext).Assembly.FullName)));
+            services.AddTransient(provider => Mock.Of<ICurrentUserService>(s => s.User == GetCurrentUser()));
         });
     }
 }
