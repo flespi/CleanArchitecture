@@ -28,7 +28,7 @@ public class TodoListsController : ApiControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(CreateTodoListDto data, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
     {
-        return await Mediator.Send(new CreateTodoListCommand { Data = data, IdempotencyKey = idempotencyKey });
+        return await Mediator.Send(new CreateTodoListCommand { Data = data });
     }
 
     [HttpPut("{id}")]

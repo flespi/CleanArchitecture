@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Application.Common.Cqrs;
+﻿using CleanArchitecture.Application.Common;
+using CleanArchitecture.Application.Common.Cqrs;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Transactions;
 using CleanArchitecture.Domain.Entities;
@@ -7,6 +8,7 @@ using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
+[Idempotent]
 [Transactional]
 public record CreateTodoItemCommand : CreateCommand<CreateTodoItemDto>;
 
@@ -27,11 +29,6 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
             Title = request.Data!.Title,
             Done = false
         };
-
-        if (request.IdempotencyKey.HasValue)
-        {
-            entity.IdempotencyKey = request.IdempotencyKey.Value;
-        }
 
         entity.AddDomainEvent(new TodoItemCreatedEvent(entity));
 

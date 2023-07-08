@@ -37,9 +37,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<bool>("Done")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("IdempotencyKey")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -74,9 +71,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasAlternateKey("Sequence"));
 
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("ListId");
@@ -95,9 +89,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
-
-                    b.Property<Guid>("IdempotencyKey")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -120,9 +111,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.HasAlternateKey("Sequence");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasAlternateKey("Sequence"));
-
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
 
                     b.HasIndex("IsDeleted");
 

@@ -15,6 +15,7 @@ public static class ConfigureServices
         services.AddDatabaseDeveloperPageExceptionFilter();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IIdempotentRequest, IdempotentRequest>();
 
         services.AddHttpContextAccessor();
 

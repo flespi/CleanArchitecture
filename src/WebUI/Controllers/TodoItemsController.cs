@@ -7,7 +7,6 @@ using CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
 namespace CleanArchitecture.WebUI.Controllers;
@@ -24,7 +23,7 @@ public class TodoItemsController : ApiControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(CreateTodoItemDto data, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
     {
-        return await Mediator.Send(new CreateTodoItemCommand { Data = data, IdempotencyKey = idempotencyKey });
+        return await Mediator.Send(new CreateTodoItemCommand { Data = data });
     }
 
     [HttpGet("{id}")]

@@ -3,11 +3,9 @@ using MediatR;
 
 namespace CleanArchitecture.Application.Common.Cqrs;
 
-public abstract record CreateCommand<TData> : IRequest<Guid>, IIdempotentRequest
+public abstract record CreateCommand<TData> : IRequest<Guid>
 {
     public TData? Data { get; init; }
-
-    public Guid? IdempotencyKey { get; init; }
 }
 
 public abstract record ReadQuery<TData> : IRequest<TData>

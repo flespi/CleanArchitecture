@@ -21,7 +21,8 @@ public static class ConfigureServices
         services.AddScoped<IInterceptor, DeletableEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<IInterceptor, ConcurrentEntitySaveChangesInterceptor>();
-        services.AddScoped<IInterceptor, IdempotentEntitySaveChangesInterceptor>();
+
+        services.AddDistributedMemoryCache();
 
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
