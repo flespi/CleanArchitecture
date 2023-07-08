@@ -39,9 +39,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<bool>("Done")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("IdempotencyKey")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
@@ -67,9 +64,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
                     b.HasIndex("ListId");
 
                     b.ToTable("TodoItems");
@@ -89,9 +83,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("IdempotencyKey")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
@@ -104,9 +95,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
 
                     b.ToTable("TodoLists");
                 });

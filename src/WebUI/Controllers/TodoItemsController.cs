@@ -4,6 +4,7 @@ using CleanArchitecture.Application.TodoItems.Commands.DeleteTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+using CleanArchitecture.WebUI.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,10 +20,8 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
+    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command, [FromHeader(Name = HeaderNames.IdempotencyKey)] Guid? idempotencyKey)
     {
-        command.IdempotencyKey = idempotencyKey;
-
         return await Mediator.Send(command);
     }
 

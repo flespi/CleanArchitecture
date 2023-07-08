@@ -8,8 +8,6 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 {
     public void Configure(EntityTypeBuilder<TodoItem> builder)
     {
-        builder.HasIdempotencyKey();
-
         builder.Property(t => t.Title)
             .HasMaxLength(200)
             .IsRequired();

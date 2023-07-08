@@ -770,7 +770,6 @@ export interface ITodoItemBriefDto {
 export class CreateTodoItemCommand implements ICreateTodoItemCommand {
     listId?: number;
     title?: string | undefined;
-    idempotencyKey?: string | undefined;
 
     constructor(data?: ICreateTodoItemCommand) {
         if (data) {
@@ -785,7 +784,6 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
         if (_data) {
             this.listId = _data["listId"];
             this.title = _data["title"];
-            this.idempotencyKey = _data["idempotencyKey"];
         }
     }
 
@@ -800,7 +798,6 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
         data = typeof data === 'object' ? data : {};
         data["listId"] = this.listId;
         data["title"] = this.title;
-        data["idempotencyKey"] = this.idempotencyKey;
         return data;
     }
 }
@@ -808,7 +805,6 @@ export class CreateTodoItemCommand implements ICreateTodoItemCommand {
 export interface ICreateTodoItemCommand {
     listId?: number;
     title?: string | undefined;
-    idempotencyKey?: string | undefined;
 }
 
 export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
@@ -1120,7 +1116,6 @@ export interface ITodoItemDto {
 
 export class CreateTodoListCommand implements ICreateTodoListCommand {
     title?: string | undefined;
-    idempotencyKey?: string | undefined;
 
     constructor(data?: ICreateTodoListCommand) {
         if (data) {
@@ -1134,7 +1129,6 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     init(_data?: any) {
         if (_data) {
             this.title = _data["title"];
-            this.idempotencyKey = _data["idempotencyKey"];
         }
     }
 
@@ -1148,14 +1142,12 @@ export class CreateTodoListCommand implements ICreateTodoListCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["title"] = this.title;
-        data["idempotencyKey"] = this.idempotencyKey;
         return data;
     }
 }
 
 export interface ICreateTodoListCommand {
     title?: string | undefined;
-    idempotencyKey?: string | undefined;
 }
 
 export class UpdateTodoListCommand implements IUpdateTodoListCommand {

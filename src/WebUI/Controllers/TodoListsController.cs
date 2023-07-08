@@ -3,6 +3,7 @@ using CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 using CleanArchitecture.Application.TodoLists.Queries.ExportTodos;
 using CleanArchitecture.Application.TodoLists.Queries.GetTodos;
+using CleanArchitecture.WebUI.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,10 +27,8 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoListCommand command, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
+    public async Task<ActionResult<int>> Create(CreateTodoListCommand command, [FromHeader(Name = HeaderNames.IdempotencyKey)] Guid? idempotencyKey)
     {
-        command.IdempotencyKey = idempotencyKey;
-
         return await Mediator.Send(command);
     }
 

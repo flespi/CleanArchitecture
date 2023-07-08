@@ -528,11 +528,6 @@
           "title": {
             "type": "string",
             "nullable": true
-          },
-          "idempotencyKey": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
           }
         }
       },
@@ -681,11 +676,6 @@
         "properties": {
           "title": {
             "type": "string",
-            "nullable": true
-          },
-          "idempotencyKey": {
-            "type": "string",
-            "format": "guid",
             "nullable": true
           }
         }
