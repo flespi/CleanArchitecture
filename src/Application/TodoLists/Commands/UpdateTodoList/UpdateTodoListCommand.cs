@@ -1,29 +1,26 @@
-﻿using System.Text;
-using CleanArchitecture.Application.Common.Cqrs;
-using CleanArchitecture.Application.Common.Exceptions;
+﻿using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Application.Common.Types;
 using CleanArchitecture.Domain.Entities;
 using MediatR;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 
-public record UpdateTodoListCommand : IRequest, IConditionalRequest
+public record UpdateTodoListCommand : IRequest
 {
     public int Id { get; init; }
 
     public string? Title { get; init; }
-
-    public Hex? ConcurrencyToken { get; set; }
 }
 
 public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IConditionalParameters _conditions;
 
-    public UpdateTodoListCommandHandler(IApplicationDbContext context)
+    public UpdateTodoListCommandHandler(IApplicationDbContext context, IConditionalParameters conditions)
     {
         _context = context;
+        _conditions = conditions;
     }
 
     public async Task<Unit> Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
@@ -36,7 +33,7 @@ public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListComman
             throw new NotFoundException(nameof(TodoList), request.Id);
         }
 
-        if (!request.ConcurrencyToken?.Equals(entity.ConcurrencyToken) ?? false)
+        if (!_conditions.IfMatch?.Equals(entity.ConcurrencyToken) ?? false)
         {
             throw new ConcurrencyException();
         }

@@ -912,7 +912,6 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
     id?: number;
     title?: string | undefined;
     done?: boolean;
-    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoItemCommand) {
         if (data) {
@@ -928,7 +927,6 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
             this.id = _data["id"];
             this.title = _data["title"];
             this.done = _data["done"];
-            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -944,7 +942,6 @@ export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
         data["id"] = this.id;
         data["title"] = this.title;
         data["done"] = this.done;
-        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -953,37 +950,6 @@ export interface IUpdateTodoItemCommand {
     id?: number;
     title?: string | undefined;
     done?: boolean;
-    concurrencyToken?: Hex | undefined;
-}
-
-export class Hex implements IHex {
-
-    constructor(data?: IHex) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): Hex {
-        data = typeof data === 'object' ? data : {};
-        let result = new Hex();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IHex {
 }
 
 export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
@@ -991,8 +957,6 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
     listId?: number;
     priority?: PriorityLevel;
     note?: string | undefined;
-    version?: string | undefined;
-    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoItemDetailCommand) {
         if (data) {
@@ -1009,8 +973,6 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
             this.listId = _data["listId"];
             this.priority = _data["priority"];
             this.note = _data["note"];
-            this.version = _data["version"];
-            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -1027,8 +989,6 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
         data["listId"] = this.listId;
         data["priority"] = this.priority;
         data["note"] = this.note;
-        data["version"] = this.version;
-        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -1038,8 +998,6 @@ export interface IUpdateTodoItemDetailCommand {
     listId?: number;
     priority?: PriorityLevel;
     note?: string | undefined;
-    version?: string | undefined;
-    concurrencyToken?: Hex | undefined;
 }
 
 export enum PriorityLevel {
@@ -1296,7 +1254,6 @@ export interface ICreateTodoListCommand {
 export class UpdateTodoListCommand implements IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
-    concurrencyToken?: Hex | undefined;
 
     constructor(data?: IUpdateTodoListCommand) {
         if (data) {
@@ -1311,7 +1268,6 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
         if (_data) {
             this.id = _data["id"];
             this.title = _data["title"];
-            this.concurrencyToken = _data["concurrencyToken"] ? Hex.fromJS(_data["concurrencyToken"]) : <any>undefined;
         }
     }
 
@@ -1326,7 +1282,6 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["title"] = this.title;
-        data["concurrencyToken"] = this.concurrencyToken ? this.concurrencyToken.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -1334,7 +1289,6 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
-    concurrencyToken?: Hex | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

@@ -3,6 +3,7 @@ using CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 using CleanArchitecture.Application.TodoLists.Queries.ExportTodos;
 using CleanArchitecture.Application.TodoLists.Queries.GetTodos;
+using CleanArchitecture.WebUI.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,14 +33,12 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command, [FromHeader(Name = HeaderNames.IfMatch)] string concurrencyToken)
     {
         if (id != command.Id)
         {
             return BadRequest();
         }
-
-        command.ConcurrencyToken = concurrencyToken;
 
         await Mediator.Send(command);
 

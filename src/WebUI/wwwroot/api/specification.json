@@ -605,20 +605,8 @@
           },
           "done": {
             "type": "boolean"
-          },
-          "concurrencyToken": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Hex"
-              }
-            ]
           }
         }
-      },
-      "Hex": {
-        "type": "object",
-        "additionalProperties": false
       },
       "UpdateTodoItemDetailCommand": {
         "type": "object",
@@ -638,18 +626,6 @@
           "note": {
             "type": "string",
             "nullable": true
-          },
-          "version": {
-            "type": "string",
-            "nullable": true
-          },
-          "concurrencyToken": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Hex"
-              }
-            ]
           }
         }
       },
@@ -775,14 +751,6 @@
           "title": {
             "type": "string",
             "nullable": true
-          },
-          "concurrencyToken": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Hex"
-              }
-            ]
           }
         }
       },
