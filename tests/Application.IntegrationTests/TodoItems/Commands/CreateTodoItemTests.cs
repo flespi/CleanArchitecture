@@ -14,7 +14,7 @@ public class CreateTodoItemTests : BaseTestFixture
     [Test]
     public async Task ShouldRequireMinimumFields()
     {
-        var command = new CreateTodoItemCommand();
+        var command = new CreateTodoItemCommand { Data = new() };
 
         await FluentActions.Invoking(() =>
             SendAsync(command)).Should().ThrowAsync<ValidationException>();

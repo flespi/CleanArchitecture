@@ -5,9 +5,9 @@ using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 using CleanArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+using CleanArchitecture.WebUI.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 namespace CleanArchitecture.WebUI.Controllers;
 
@@ -21,7 +21,7 @@ public class TodoItemsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> Create(CreateTodoItemDto data, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
+    public async Task<ActionResult<Guid>> Create(CreateTodoItemDto data, [FromHeader(Name = HeaderNames.IdempotencyKey)] Guid? idempotencyKey)
     {
         return await Mediator.Send(new CreateTodoItemCommand { Data = data });
     }
@@ -40,9 +40,9 @@ public class TodoItemsController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Update(Guid id, UpdateTodoItemDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    public async Task<IActionResult> Update(Guid id, UpdateTodoItemDto data, [FromHeader(Name = HeaderNames.IfMatch)] string concurrencyToken)
     {
-        await Mediator.Send(new UpdateTodoItemCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
+        await Mediator.Send(new UpdateTodoItemCommand { Id = id, Data = data });
 
         return NoContent();
     }
@@ -51,9 +51,9 @@ public class TodoItemsController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> UpdateItemDetails(Guid id, UpdateTodoItemDetailDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    public async Task<IActionResult> UpdateItemDetails(Guid id, UpdateTodoItemDetailDto data, [FromHeader(Name = HeaderNames.IfMatch)] string concurrencyToken)
     {
-        await Mediator.Send(new UpdateTodoItemDetailCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
+        await Mediator.Send(new UpdateTodoItemDetailCommand { Id = id, Data = data });
 
         return NoContent();
     }

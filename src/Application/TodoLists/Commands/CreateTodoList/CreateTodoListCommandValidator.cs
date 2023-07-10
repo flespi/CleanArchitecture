@@ -7,7 +7,7 @@ public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCo
 {
     public CreateTodoListCommandValidator(IValidatorFactory validatorFactory)
     {
-        RuleFor(x => x.Data!)
+        RuleFor(x => x.Data)
             .NotNull()
             .SetValidator(x => validatorFactory.GetValidator<BaseTodoListDto>());
     }

@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Application.Common;
-﻿using CleanArchitecture.Application.Common.Cqrs;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Transactions;
 using CleanArchitecture.Domain.Entities;
@@ -9,7 +8,10 @@ namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
 [Idempotent]
 [Transactional]
-public record CreateTodoListCommand : CreateCommand<CreateTodoListDto>;
+public record CreateTodoListCommand : IRequest<Guid>
+{
+    public required CreateTodoListDto Data { get; init; }
+}
 
 public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, Guid>
 {
@@ -24,7 +26,7 @@ public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListComman
     {
         var entity = new TodoList();
 
-        entity.Title = request.Data!.Title;
+        entity.Title = request.Data.Title;
 
         _context.TodoLists.Add(entity);
 

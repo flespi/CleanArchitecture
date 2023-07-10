@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Application.Common;
-using CleanArchitecture.Application.Common.Cqrs;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Transactions;
 using CleanArchitecture.Domain.Entities;
@@ -10,7 +9,10 @@ namespace CleanArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 
 [Idempotent]
 [Transactional]
-public record CreateTodoItemCommand : CreateCommand<CreateTodoItemDto>;
+public record CreateTodoItemCommand : IRequest<Guid>
+{
+    public required CreateTodoItemDto Data { get; init; }
+}
 
 public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, Guid>
 {
@@ -25,8 +27,8 @@ public class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemComman
     {
         var entity = new TodoItem
         {
-            ListId = request.Data!.ListId,
-            Title = request.Data!.Title,
+            ListId = request.Data.ListId,
+            Title = request.Data.Title,
             Done = false
         };
 

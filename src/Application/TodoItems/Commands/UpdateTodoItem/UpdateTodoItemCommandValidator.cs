@@ -6,7 +6,7 @@ public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCo
 {
     public UpdateTodoItemCommandValidator(IValidatorFactory validatorFactory)
     {
-        RuleFor(x => x.Data!)
+        RuleFor(x => x.Data)
             .NotNull()
             .SetValidator(x => validatorFactory.GetValidator<BaseTodoItemDto>());
     }

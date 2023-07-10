@@ -7,7 +7,7 @@ public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCo
 {
     public UpdateTodoListCommandValidator(IValidatorFactory validatorFactory)
     {
-        RuleFor(x => x.Data!)
+        RuleFor(x => x.Data)
             .NotNull()
             .SetValidator(x => validatorFactory.GetValidator<BaseTodoListDto>().ForEntity(x.Id));
     }

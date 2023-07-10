@@ -9,7 +9,10 @@ using Microsoft.EntityFrameworkCore;
 namespace CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 
 [Transactional]
-public record DeleteTodoListCommand : DeleteCommand;
+public record DeleteTodoListCommand : IRequest
+{
+    public required Guid Id { get; init; }
+}
 
 public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
 {

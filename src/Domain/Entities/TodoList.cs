@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitecture.Domain.Entities;
 
-public class TodoList : BaseEntity, IAuditableEntity, IDeletableEntity, IConcurrentEntity, IIdempotentEntity
+public class TodoList : BaseEntity, IAuditableEntity, IDeletableEntity, IConcurrentEntity
 {
     public string? Title { get; set; }
 
@@ -11,8 +11,6 @@ public class TodoList : BaseEntity, IAuditableEntity, IDeletableEntity, IConcurr
     public Auditability Audit { get; set; } = null!;
 
     public byte[]? ConcurrencyToken { get; set; }
-
-    public Guid IdempotencyKey { get; set; } = Guid.NewGuid();
 
     public bool IsDeleted { get; set; }
 }

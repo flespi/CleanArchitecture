@@ -12,8 +12,6 @@ public class TodoListConfiguration : IEntityTypeConfiguration<TodoList>
 
         builder.HasConcurrencyToken();
 
-        builder.HasIdempotencyKey();
-
         builder.HasDeletedFlag();
 
         builder.Property(t => t.Title)

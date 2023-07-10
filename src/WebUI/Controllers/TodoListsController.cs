@@ -3,6 +3,7 @@ using CleanArchitecture.Application.TodoLists.Commands.DeleteTodoList;
 using CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 using CleanArchitecture.Application.TodoLists.Queries.ExportTodos;
 using CleanArchitecture.Application.TodoLists.Queries.GetTodos;
+using CleanArchitecture.WebUI.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> Create(CreateTodoListDto data, [FromHeader(Name = "Idempotency-Key")] Guid? idempotencyKey)
+    public async Task<ActionResult<Guid>> Create(CreateTodoListDto data, [FromHeader(Name = HeaderNames.IdempotencyKey)] Guid? idempotencyKey)
     {
         return await Mediator.Send(new CreateTodoListCommand { Data = data });
     }
@@ -35,9 +36,9 @@ public class TodoListsController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesDefaultResponseType]
-    public async Task<IActionResult> Update(Guid id, UpdateTodoListDto data, [FromHeader(Name = "If-Match")] string concurrencyToken)
+    public async Task<IActionResult> Update(Guid id, UpdateTodoListDto data, [FromHeader(Name = HeaderNames.IfMatch)] string concurrencyToken)
     {
-        await Mediator.Send(new UpdateTodoListCommand { Id = id, Data = data, ConcurrencyToken = concurrencyToken });
+        await Mediator.Send(new UpdateTodoListCommand { Id = id, Data = data });
 
         return NoContent();
     }

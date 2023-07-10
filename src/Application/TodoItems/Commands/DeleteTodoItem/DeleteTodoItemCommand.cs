@@ -9,7 +9,10 @@ using MediatR;
 namespace CleanArchitecture.Application.TodoItems.Commands.DeleteTodoItem;
 
 [Transactional]
-public record DeleteTodoItemCommand : DeleteCommand;
+public record DeleteTodoItemCommand : IRequest
+{
+    public required Guid Id { get; init; }
+}
 
 public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
 {

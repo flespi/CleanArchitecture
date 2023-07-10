@@ -119,7 +119,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     AuditLastModified = table.Column<DateTime>(name: "Audit_LastModified", type: "datetime2", nullable: true),
                     AuditLastModifiedBy = table.Column<string>(name: "Audit_LastModifiedBy", type: "nvarchar(max)", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
-                    IdempotencyKey = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1")
@@ -254,7 +253,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                     AuditLastModified = table.Column<DateTime>(name: "Audit_LastModified", type: "datetime2", nullable: true),
                     AuditLastModifiedBy = table.Column<string>(name: "Audit_LastModifiedBy", type: "nvarchar(max)", nullable: true),
                     ConcurrencyToken = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
-                    IdempotencyKey = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1")
@@ -349,12 +347,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 columns: new[] { "SubjectId", "SessionId", "Type" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_IdempotencyKey",
-                table: "TodoItems",
-                column: "IdempotencyKey",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TodoItems_IsDeleted",
                 table: "TodoItems",
                 column: "IsDeleted");
@@ -363,12 +355,6 @@ namespace CleanArchitecture.Infrastructure.Persistence.Migrations
                 name: "IX_TodoItems_ListId",
                 table: "TodoItems",
                 column: "ListId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TodoLists_IdempotencyKey",
-                table: "TodoLists",
-                column: "IdempotencyKey",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TodoLists_IsDeleted",

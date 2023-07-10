@@ -9,7 +9,7 @@ namespace CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 
 public record GetTodoItemQuery : IRequest<Versioned<TodoItemDto>>
 {
-    public Guid Id { get; init; }
+    public required Guid Id { get; init; }
 }
 
 public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoItemQuery, Versioned<TodoItemDto>>

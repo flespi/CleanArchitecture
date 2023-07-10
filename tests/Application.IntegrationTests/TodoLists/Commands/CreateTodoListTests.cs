@@ -13,7 +13,7 @@ public class CreateTodoListTests : BaseTestFixture
     [Test]
     public async Task ShouldRequireMinimumFields()
     {
-        var command = new CreateTodoListCommand();
+        var command = new CreateTodoListCommand { Data = new() };
         await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
