@@ -1,7 +1,4 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.UpdateTodoList;
 
@@ -16,15 +13,17 @@ public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCo
         _context = context;
 
         RuleFor(v => v.Title)
-            .NotEmpty().WithMessage("Title is required.")
-            .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
-            .MustAsync(BeUniqueTitle).WithMessage(localizer["The field must be unique."]);
+            .NotEmpty()
+            .MaximumLength(200)
+            .MustAsync(BeUniqueTitle)
+                .WithMessage(localizer["The field must be unique."])
+                .WithErrorCode("Unique");
     }
 
     public async Task<bool> BeUniqueTitle(UpdateTodoListCommand model, string title, CancellationToken cancellationToken)
     {
-        return await _context.TodoLists
+        return !await _context.TodoLists
             .Where(l => l.Id != model.Id)
-            .AllAsync(l => l.Title != title, cancellationToken);
+            .AnyAsync(l => l.Title == title, cancellationToken);
     }
 }

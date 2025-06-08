@@ -3,21 +3,25 @@
   <metadata>
 
     <id>Clean.Architecture.Solution.Template</id>
-    <version>6.0.7</version>
+    <version>9.0.10</version>
     <title>Clean Architecture Solution Template</title>
-    <description>Clean Architecture Solution Template for and .NET 6.</description>
-    <summary>
-      This is a solution template for creating a Single Page App (SPA) with ASP.NET Core 6 and Angular 12 following the principles of Clean Architecture.
-    </summary>
     <authors>JasonTaylorDev</authors>
+    <description>Clean Architecture Solution Template for .NET 9.</description>
+    <summary>
+      A Clean Architecture Solution Template for creating apps using Angular, React, or Web API only with ASP.NET Core.
+    </summary>
+    <releaseNotes>
+      📦 Updated Azure DevOps and GitHub Actions pipeline configurations to enhance compatibility and simplify setup
+    </releaseNotes>
 
     <projectUrl>https://github.com/JasonTaylorDev/CleanArchitecture</projectUrl>
     <repository type="git" url="https://github.com/JasonTaylorDev/CleanArchitecture.git" branch="main" />
 
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <tags>clean-architecture project template csharp dotnet angular</tags>
+    <tags>clean-architecture project template csharp dotnet angular react aspire</tags>
     <icon>icon.png</icon>
+    <readme>README.md</readme>
 
     <packageTypes>
       <packageType name="Template" />
@@ -26,8 +30,9 @@
   </metadata>
 
   <files>
-    <file src=".template.config\icon.png" target="" />
-    <file src=".\**" target="content" exclude="**\node_modules\**;**\bin\**;**\obj\**;**\.vs\**;**\.vscode\**;**\ClientApp\dist\**;**\wwwroot\dist\**;content\Directory.Build.*;**\.git\**;**\.github\**;**\CODE_OF_CONDUCT.md;**\LICENSE;**\README.md;" />
+    <file src=".template.config\icon.png" />
+    <file src="README.md" />
+    <file src=".\**" target="content" exclude="**\node_modules\**;**\tools\**;**\bin\**;**\obj\**;.\.vs\**;.\.vscode\**;**\ClientApp\dist\**;**\wwwroot\dist\**;content\Directory.Build.*;.\.git\**;.\.github\workflows\jekyll-gh-pages.yml;.\.github\workflows\package.yml;.\.github\workflows\codeql.yml;.\.github\workflows\build.yml;.\.github\ISSUE_TEMPLATE\**;.\.github\icon.png;.\.github\FUNDING.yml;.\CODE_OF_CONDUCT.md;.\LICENSE;.\README.md;.\CleanArchitecture.nuspec;.\src\Web\app.db;" />
   </files>
 
 </package>
