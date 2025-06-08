@@ -1,8 +1,5 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Validations;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-
 namespace CleanArchitecture.Application.TodoLists.Commands;
 
 public class BaseTodoListDtoValidator : DataValidator<BaseTodoListDto>
@@ -14,15 +11,17 @@ public class BaseTodoListDtoValidator : DataValidator<BaseTodoListDto>
         _context = context;
 
         RuleFor(v => v.Title)
-            .NotEmpty().WithMessage("Title is required.")
-            .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
-            .MustAsync(BeUniqueTitle).WithMessage("The specified title already exists.");
+            .NotEmpty()
+            .MaximumLength(200)
+            .MustAsync(BeUniqueTitle)
+                .WithMessage("'{PropertyName}' must be unique.")
+                .WithErrorCode("Unique");
     }
 
     public async Task<bool> BeUniqueTitle(BaseTodoListDto model, string title, CancellationToken cancellationToken)
     {
-        return await _context.TodoLists
+        return !await _context.TodoLists
             .Where(l => l.Id != Options.Id)
-            .AllAsync(l => l.Title != title, cancellationToken);
+            .AllAsync(l => l.Title == title, cancellationToken);
     }
 }

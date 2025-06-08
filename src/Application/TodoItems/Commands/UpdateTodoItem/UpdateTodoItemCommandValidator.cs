@@ -1,10 +1,8 @@
-﻿using FluentValidation;
-
-namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
+﻿namespace CleanArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 
 public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
 {
-    public UpdateTodoItemCommandValidator(IValidatorFactory validatorFactory)
+    public UpdateTodoItemCommandValidator(Common.Validations.IValidatorFactory validatorFactory)
     {
         RuleFor(x => x.Data!)
             .NotNull()

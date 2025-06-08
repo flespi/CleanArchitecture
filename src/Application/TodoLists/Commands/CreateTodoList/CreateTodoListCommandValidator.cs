@@ -1,11 +1,10 @@
 ﻿using CleanArchitecture.Application.Common.Validations;
-using FluentValidation;
 
 namespace CleanArchitecture.Application.TodoLists.Commands.CreateTodoList;
 
 public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
 {
-    public CreateTodoListCommandValidator(IValidatorFactory validatorFactory)
+    public CreateTodoListCommandValidator(Common.Validations.IValidatorFactory validatorFactory)
     {
         RuleFor(x => x.Data!)
             .NotNull()

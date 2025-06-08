@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Application.Common.Validations;
-using FluentValidation;
 
 namespace CleanArchitecture.Application.TodoItems.Commands;
 

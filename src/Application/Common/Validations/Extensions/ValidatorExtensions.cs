@@ -4,7 +4,7 @@ namespace CleanArchitecture.Application.Common.Validations;
 
 public static class ValidatorExtensions
 {
-    public static IValidator<T> ForEntity<T>(this IValidator<T> validator, int id)
+    public static IValidator<T> UseEntity<T>(this IValidator<T> validator, int id)
     {
         if (validator is DataValidator<T> dataValidator)
         {
