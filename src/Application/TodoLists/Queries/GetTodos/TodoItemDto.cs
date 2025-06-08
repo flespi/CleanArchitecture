@@ -1,26 +1,27 @@
-﻿using AutoMapper;
-using CleanArchitecture.Application.Common.Mappings;
-using CleanArchitecture.Domain.Entities;
+﻿using CleanArchitecture.Domain.Entities;
 
 namespace CleanArchitecture.Application.TodoLists.Queries.GetTodos;
 
-public class TodoItemDto : IMapFrom<TodoItem>
+public class TodoItemDto
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public Guid ListId { get; set; }
+    public Guid ListId { get; init; }
 
-    public string? Title { get; set; }
+    public string? Title { get; init; }
 
-    public bool Done { get; set; }
+    public bool Done { get; init; }
 
-    public int Priority { get; set; }
+    public int Priority { get; init; }
 
-    public string? Note { get; set; }
+    public string? Note { get; init; }
 
-    public void Mapping(Profile profile)
+    private class Mapping : Profile
     {
-        profile.CreateMap<TodoItem, TodoItemDto>()
-            .ForMember(d => d.Priority, opt => opt.MapFrom(s => (int)s.Priority));
+        public Mapping()
+        {
+            CreateMap<TodoItem, TodoItemDto>().ForMember(d => d.Priority, 
+                opt => opt.MapFrom(s => (int)s.Priority));
+        }
     }
 }
