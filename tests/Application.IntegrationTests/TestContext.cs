@@ -4,37 +4,43 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
+using Testcontainers.MsSql;
+using Xunit;
 
 namespace CleanArchitecture.Application.IntegrationTests;
 
-public partial class TestContext
+public class TestContext : IAsyncLifetime
 {
-    private WebApplicationFactory<Program> _factory = null!;
-    private IConfiguration _configuration = null!;
-    private IServiceScopeFactory _scopeFactory = null!;
+    private readonly CurrentUserService _currentUserService;
+
+    private readonly MsSqlContainer _container;
+    private readonly WebApplicationFactory<Program> _factory;
+
+    private readonly Lazy<IServiceScopeFactory> _scopeFactory;
+
     private Respawner _checkpoint = null!;
-    private CurrentUserService _currentUserService;
 
     public TestContext()
     {
         _currentUserService = new CurrentUserService();
 
-        _factory = new CustomWebApplicationFactory(_currentUserService);
-        _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-        _configuration = _factory.Services.GetRequiredService<IConfiguration>();
+        _container = new MsSqlBuilder().Build();
+        _factory = new CustomWebApplicationFactory(_container, _currentUserService);
 
-        _checkpoint = Respawner.CreateAsync(_configuration.GetConnectionString("DefaultConnection")!, new RespawnerOptions
-        {
-            TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" }
-        }).GetAwaiter().GetResult();
+        // This needs to be evaluated after InitializeAsync
+        _scopeFactory = new(CreateScopeFactory);
+    }
+
+    private IServiceScopeFactory CreateScopeFactory()
+    {
+        return _factory.Services.GetRequiredService<IServiceScopeFactory>();
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
@@ -43,7 +49,7 @@ public partial class TestContext
 
     public async Task SendAsync(IBaseRequest request)
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
@@ -67,7 +73,7 @@ public partial class TestContext
 
     public async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
@@ -103,7 +109,7 @@ public partial class TestContext
     {
         try
         {
-            await _checkpoint.ResetAsync(_configuration.GetConnectionString("DefaultConnection")!);
+            await _checkpoint.ResetAsync(_container.GetConnectionString());
         }
         catch (Exception) 
         {
@@ -115,7 +121,7 @@ public partial class TestContext
     public async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
         where TEntity : class
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -125,7 +131,7 @@ public partial class TestContext
     public async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -136,10 +142,35 @@ public partial class TestContext
 
     public async Task<int> CountAsync<TEntity>() where TEntity : class
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = _scopeFactory.Value.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync();
+    }
+
+    private async Task<Respawner> CreateCheckpoint()
+    {
+        using var scope = _scopeFactory.Value.CreateScope();
+
+        var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
+        await initialiser.InitialiseAsync();
+        await initialiser.SeedAsync(); ;
+
+        return await Respawner.CreateAsync(_container.GetConnectionString(), new RespawnerOptions
+        {
+            TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" }
+        });
+    }
+
+    public async Task InitializeAsync()
+    {
+        await _container.StartAsync();
+        _checkpoint = await CreateCheckpoint();
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _container.StopAsync();
     }
 }

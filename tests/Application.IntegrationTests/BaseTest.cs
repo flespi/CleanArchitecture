@@ -3,8 +3,8 @@
 using System.Threading.Tasks;
 using Xunit;
 
-[Collection(BaseCollection.Name)]
-public abstract class BaseTest : IAsyncLifetime
+// [Collection(BaseCollection.Name)]
+public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
 {
     protected TestContext Context { get; }
 
