@@ -1,15 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <RootNamespace>CleanArchitecture.Domain</RootNamespace>
-        <AssemblyName>CleanArchitecture.Domain</AssemblyName>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>CleanArchitecture.Domain</RootNamespace>
+    <AssemblyName>CleanArchitecture.Domain</AssemblyName>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="MediatR" Version="12.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+  </ItemGroup>
 
 </Project>
