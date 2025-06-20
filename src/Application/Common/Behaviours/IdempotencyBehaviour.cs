@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using CleanArchitecture.Application.Common.Interfaces;
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
 
@@ -8,9 +8,9 @@ public class IdempotencyBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
      where TRequest : notnull
 {
     private readonly IIdempotentRequest _idempotency;
-    private readonly IDistributedCache _cache;
+    private readonly HybridCache _cache;
 
-    public IdempotencyBehaviour(IIdempotentRequest idempotency, IDistributedCache cache)
+    public IdempotencyBehaviour(IIdempotentRequest idempotency, HybridCache cache)
     {
         _idempotency = idempotency;
         _cache = cache;
@@ -22,18 +22,16 @@ public class IdempotencyBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         if (idempotentAttribute.Any())
         {
-            if (_idempotency.IdempotencyKey is not null)
+            if (_idempotency.IdempotencyKey is null)
             {
-                var response = await _cache.GetAsync<TResponse>(_idempotency.IdempotencyKey!, cancellationToken);
-
-                if (response is null)
-                {
-                    response = await next();
-                    await _cache.SetAsync(_idempotency.IdempotencyKey!, response, cancellationToken);
-                }
-
-                return response;
+                throw new ValidationException("The idempotency key is missing.");
             }
+
+            return await _cache.GetOrCreateAsync(
+                _idempotency.IdempotencyKey,
+                async cancel => await next(),
+                cancellationToken: cancellationToken
+            );
         }
 
         return await next();
