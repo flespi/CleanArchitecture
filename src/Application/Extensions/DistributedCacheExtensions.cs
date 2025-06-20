@@ -8,8 +8,7 @@ public static class DistributedCacheExtensions
     public static async Task<T?> GetAsync<T>(this IDistributedCache cache, string key, CancellationToken token = default)
     {
         var json = await cache.GetStringAsync(key, token);
-        var value = JsonSerializer.Deserialize<T>(json);
-        return value;
+        return JsonSerializer.Deserialize<T>(json!);
     }
 
     public static async Task SetAsync<T>(this IDistributedCache cache, string key, T value, CancellationToken token = default)

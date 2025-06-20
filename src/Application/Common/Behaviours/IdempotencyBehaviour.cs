@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using CleanArchitecture.Application.Common.Interfaces;
-using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
@@ -17,7 +16,7 @@ public class IdempotencyBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         _cache = cache;
     }
 
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var idempotentAttribute = request.GetType().GetCustomAttributes<IdempotentAttribute>();
 
