@@ -10,7 +10,7 @@ public class ConcurrencyException : Exception
     }
 
     public ConcurrencyException(Exception innerException)
-        : base(Msg, innerException)
+    : base(Msg, innerException)
     {
     }
 }

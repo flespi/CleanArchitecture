@@ -1,15 +1,22 @@
-﻿using CleanArchitecture.Application.Common.Mappings;
-using CleanArchitecture.Domain.Entities;
+﻿using CleanArchitecture.Domain.Entities;
 
 namespace CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 
-public class TodoItemDto : IMapFrom<TodoItem>
+public class TodoItemDto
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    public int ListId { get; set; }
+    public int ListId { get; init; }
 
-    public string? Title { get; set; }
+    public string? Title { get; init; }
 
-    public bool Done { get; set; }
+    public bool Done { get; init; }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<TodoItem, TodoItemDto>();
+        }
+    }
 }

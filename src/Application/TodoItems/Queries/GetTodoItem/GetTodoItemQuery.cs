@@ -4,7 +4,6 @@ using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Models;
 using CleanArchitecture.Application.Common.Types;
 using CleanArchitecture.Domain.Entities;
-using MediatR;
 
 namespace CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 
@@ -29,10 +28,7 @@ public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoIte
         var entity = await _context.TodoItems
             .FindAsync(new object[] { request.Id }, cancellationToken);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoItem), request.Id);
-        }
+        Guard.Against.NotFound(request.Id, entity);
 
         Hex? concurrencyToken = entity.ConcurrencyToken;
 
