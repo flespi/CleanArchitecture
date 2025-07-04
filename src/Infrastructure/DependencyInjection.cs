@@ -1,8 +1,10 @@
-﻿using CleanArchitecture.Application.Common.Interfaces;
+﻿using System;
+using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Constants;
 using CleanArchitecture.Infrastructure.Data;
 using CleanArchitecture.Infrastructure.Data.Interceptors;
 using CleanArchitecture.Infrastructure.Identity;
+using EFSeeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -21,15 +23,22 @@ public static class DependencyInjection
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
+        builder.Services.AddDbContextSeeder<ApplicationDbContext>(options =>
+        {
+            options.DataSeedersAssembly(typeof(ApplicationDbContext).Assembly);
+        });
+
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
+            var seeder = sp.GetRequiredService<DbContextSeeder<ApplicationDbContext>>();
+
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
 #if (UsePostgreSQL)
-            options.UseNpgsql(connectionString).AddAsyncSeeding(sp);
+            options.UseNpgsql(connectionString).UseAsyncSeeding(seeder);
 #elif (UseSqlite)
-            options.UseSqlite(connectionString).AddAsyncSeeding(sp);
+            options.UseSqlite(connectionString).UseAsyncSeeding(seeder);
 #else
-            options.UseSqlServer(connectionString).AddAsyncSeeding(sp);
+            options.UseSqlServer(connectionString).UseAsyncSeeding(seeder);
 #endif
         });
 
@@ -42,8 +51,6 @@ public static class DependencyInjection
 #endif
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
-
-        builder.Services.AddScoped<ApplicationDbContextInitialiser>();
 
 #if (UseApiOnly)
         builder.Services.AddAuthentication()
