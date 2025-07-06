@@ -1,11 +1,10 @@
 ﻿using CleanArchitecture.Domain.Constants;
 using CleanArchitecture.Domain.Entities;
-using CleanArchitecture.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Orca;
 
 namespace CleanArchitecture.Infrastructure.Data;
 
@@ -35,15 +34,17 @@ public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ISubjectStore _subjectStore;
+    private readonly IRoleStore _roleStore;
+    private readonly IPermissionStore _permissionStore;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, ISubjectStore subjectStore, IRoleStore roleStore, IPermissionStore permissionStore)
     {
         _logger = logger;
         _context = context;
-        _userManager = userManager;
-        _roleManager = roleManager;
+        _subjectStore = subjectStore;
+        _roleStore = roleStore;
+        _permissionStore = permissionStore;
     }
 
     public async Task InitialiseAsync()
@@ -74,24 +75,42 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
-        // Default roles
-        var administratorRole = new IdentityRole(Roles.Administrator);
-
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
+        var canPurgePermission = new Permission
         {
-            await _roleManager.CreateAsync(administratorRole);
+            Name = Policies.CanPurge
+        };
+
+        await _permissionStore.CreateAsync(canPurgePermission);
+
+        // Default roles
+        var administratorRole = await _roleStore.FindByNameAsync(Roles.Administrator);
+
+        if (administratorRole is null)
+        {
+            administratorRole = new Role
+            {
+                Name = Roles.Administrator,
+            };
+
+            await _roleStore.CreateAsync(administratorRole);
+            await _roleStore.AddPermissionAsync(administratorRole, canPurgePermission);
         }
 
         // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+        var administratorResult = await _subjectStore.SearchAsync(new SubjectFilter { Name = "administrator@localhost" });
+        var administrator = administratorResult.FirstOrDefault();
 
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        if (administrator is null)
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            administrator = new Subject
             {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
-            }
+                Sub = Guid.NewGuid().ToString(),
+                Name = "administrator@localhost",
+                Email = "administrator@localhost"
+            };
+
+            await _subjectStore.CreateAsync(administrator);
+            await _subjectStore.AddRoleAsync(administrator, administratorRole);
         }
 
         // Default data

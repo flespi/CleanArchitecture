@@ -11,44 +11,29 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CleanArchitecture.Application.FunctionalTests;
 
-using static Testing;
-
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly DbConnection _connection;
     private readonly string _connectionString;
+    private readonly IUser _user;
 
-    public CustomWebApplicationFactory(DbConnection connection, string connectionString)
+    public CustomWebApplicationFactory(DbConnection connection, string connectionString, IUser user)
     {
         _connection = connection;
         _connectionString = connectionString;
+        _user = user;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-#if (UseAspire)
+#if (UseAspire || true)
         builder.UseSetting("ConnectionStrings:CleanArchitectureDb", _connectionString);
 #endif
         builder.ConfigureTestServices(services =>
         {
             services
                 .RemoveAll<IUser>()
-                .AddTransient(provider => Mock.Of<IUser>(s => s.Id == GetUserId()));
-#if (!UseAspire || UseSqlite)
-            services
-                .RemoveAll<DbContextOptions<ApplicationDbContext>>()
-                .AddDbContext<ApplicationDbContext>((sp, options) =>
-                {
-                    options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-    #if (UsePostgreSQL)
-                    options.UseNpgsql(_connection);
-    #elif (UseSqlite)
-                    options.UseSqlite(_connection);
-    #else
-                    options.UseSqlServer(_connection);
-    #endif
-                });
-#endif
+                .AddSingleton(_user);
         });
     }
 }

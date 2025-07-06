@@ -2,20 +2,20 @@
 using CleanArchitecture.Application.Common.Exceptions;
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Security;
+using Microsoft.Extensions.Options;
+using Orca;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
 
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly IUser _user;
-    private readonly IIdentityService _identityService;
+    private readonly OrcaOptions _options;
 
-    public AuthorizationBehaviour(
-        IUser user,
-        IIdentityService identityService)
+    public AuthorizationBehaviour(IUser user, IOptions<OrcaOptions> options)
     {
         _user = user;
-        _identityService = identityService;
+        _options = options.Value;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -25,7 +25,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         if (authorizeAttributes.Any())
         {
             // Must be authenticated user
-            if (_user.Id == null)
+            if (_user.Principal is null)
             {
                 throw new UnauthorizedAccessException();
             }
@@ -41,7 +41,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 {
                     foreach (var role in roles)
                     {
-                        var isInRole = await _identityService.IsInRoleAsync(_user.Id, role.Trim());
+                        var isInRole = _user.Principal.IsInRole(role.Trim());
                         if (isInRole)
                         {
                             authorized = true;
@@ -63,8 +63,9 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             {
                 foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
                 {
-                    var authorized = await _identityService.AuthorizeAsync(_user.Id, policy);
-
+                    var permissionEvaluator = new PermissionEvaluator(_options.ClaimTypeMap);
+                    var authorized = permissionEvaluator.HasPermission(_user.Principal, policy);
+                    
                     if (!authorized)
                     {
                         throw new ForbiddenAccessException();

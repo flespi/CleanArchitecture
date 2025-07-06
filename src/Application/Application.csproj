@@ -11,6 +11,8 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Orca" />
+    <PackageReference Include="Orca.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

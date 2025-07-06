@@ -1,11 +1,11 @@
 ﻿using CleanArchitecture.Application.Common.Models;
-using Microsoft.AspNetCore.Identity;
+using Orca;
 
-namespace CleanArchitecture.Infrastructure.Identity;
+namespace CleanArchitecture.Infrastructure.Orca;
 
 public static class IdentityResultExtensions
 {
-    public static Result ToApplicationResult(this IdentityResult result)
+    public static Result ToApplicationResult(this AccessManagementResult result)
     {
         return result.Succeeded
             ? Result.Success()

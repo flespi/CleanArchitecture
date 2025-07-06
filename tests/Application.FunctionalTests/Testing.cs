@@ -1,10 +1,18 @@
-﻿using CleanArchitecture.Domain.Constants;
+﻿using System.Security.Claims;
+using System.Security.Principal;
+using CleanArchitecture.Application.Common;
+using CleanArchitecture.Domain.Constants;
 using CleanArchitecture.Infrastructure.Data;
-using CleanArchitecture.Infrastructure.Identity;
+using CleanArchitecture.Infrastructure.Orca;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Orca;
 
 namespace CleanArchitecture.Application.FunctionalTests;
 
@@ -14,14 +22,16 @@ public partial class Testing
     private static ITestDatabase _database = null!;
     private static CustomWebApplicationFactory _factory = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
-    private static string? _userId;
+    private static CurrentUser _user = null!;
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
+        _user = new CurrentUser();
+
         _database = await TestDatabaseFactory.CreateAsync();
 
-        _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString());
+        _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString(), _user);
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
     }
@@ -44,9 +54,9 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static string? GetUserId()
+    public static ClaimsPrincipal? GetUserId()
     {
-        return _userId;
+        return _user.Principal;
     }
 
     public static async Task<string> RunAsDefaultUserAsync()
@@ -63,34 +73,70 @@ public partial class Testing
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var subjectStore = scope.ServiceProvider.GetRequiredService<ISubjectStore>();
 
-        var user = new ApplicationUser { UserName = userName, Email = userName };
+        var subject = new Subject { Sub = Guid.NewGuid().ToString(), Name = userName, Email = userName };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await subjectStore.CreateAsync(subject);
 
         if (roles.Any())
         {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roleStore = scope.ServiceProvider.GetRequiredService<IRoleStore>();
 
             foreach (var role in roles)
             {
-                await roleManager.CreateAsync(new IdentityRole(role));
-            }
+                var subjectRole = new Role { Name = role };
 
-            await userManager.AddToRolesAsync(user, roles);
+                await roleStore.CreateAsync(subjectRole);
+                await subjectStore.AddRoleAsync(subject, subjectRole);
+            }
         }
 
         if (result.Succeeded)
         {
-            _userId = user.Id;
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, subject.Sub),
+                new(ClaimTypes.Name, userName),
+            };
 
-            return _userId;
+            foreach (var role in roles)
+            {
+                claims.Add(new(ClaimTypes.Role, role));
+            }
+
+            var identity = new ClaimsIdentity(claims, "Password", ClaimTypes.Name, ClaimTypes.Role);
+
+            var principal = new ClaimsPrincipal();
+            principal.AddIdentity(identity);
+
+            var authorizationContextProvider = scope.ServiceProvider.GetRequiredService<IAuthorizationContextProvider>();
+            var authorizationContext = await authorizationContextProvider.CreateAsync(principal);
+
+            var orcaIdentity = new ClaimsIdentityFactory(new()).Create(authorizationContext);
+            principal.AddIdentity(orcaIdentity);
+
+            _user.Principal = principal;
+
+            return subject.Sub;
         }
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
         throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+    }
+
+    private static async Task AuthenticateAsync(ClaimsPrincipal principal)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var policyProvider = scope.ServiceProvider.GetRequiredService<IAuthorizationPolicyProvider>();
+        var policyEvaluator = scope.ServiceProvider.GetRequiredService<IPolicyEvaluator>();
+
+        var defaultPolicy = await policyProvider.GetDefaultPolicyAsync();
+        var httpContext = new DefaultHttpContext { User = principal };
+
+        var result = await policyEvaluator.AuthenticateAsync(defaultPolicy, httpContext);
     }
 
     public static async Task ResetState()
@@ -103,7 +149,7 @@ public partial class Testing
         {
         }
 
-        _userId = null;
+        _user.Principal = null;
     }
 
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)

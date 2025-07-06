@@ -1,6 +1,8 @@
-﻿namespace CleanArchitecture.Application.Common.Interfaces;
+﻿using System.Security.Claims;
+
+namespace CleanArchitecture.Application.Common.Interfaces;
 
 public interface IUser
 {
-    string? Id { get; }
+    ClaimsPrincipal? Principal { get; }
 }
