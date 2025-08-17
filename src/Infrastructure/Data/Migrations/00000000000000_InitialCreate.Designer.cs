@@ -59,12 +59,6 @@ namespace CleanArchitecture.Infrastructure.Data.Migrations
                 b.Property<DateTime?>("Reminder")
                     .HasColumnType("datetime2");
 
-                b.Property<int>("Sequence")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
-                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Sequence"), 1L, 1);
-
                 b.Property<string>("Title")
                     .IsRequired()
                     .HasMaxLength(200)
@@ -72,15 +66,7 @@ namespace CleanArchitecture.Infrastructure.Data.Migrations
 
                 b.HasKey("Id");
 
-                SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
                 b.HasIndex("ListId");
-
-                b.HasIndex("Sequence")
-                    .IsUnique();
-
-                SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
-
 
                 b.ToTable("TodoItems");
             });
@@ -104,23 +90,12 @@ namespace CleanArchitecture.Infrastructure.Data.Migrations
                 b.Property<string>("LastModifiedBy")
                     .HasColumnType("nvarchar(max)");
 
-                b.Property<int>("Sequence")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
                 b.Property<string>("Title")
                     .IsRequired()
                     .HasMaxLength(200)
                     .HasColumnType("nvarchar(200)");
 
                 b.HasKey("Id");
-
-                SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                b.HasIndex("Sequence")
-                    .IsUnique();
-
-                SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Sequence"));
 
                 b.ToTable("TodoLists");
             });
