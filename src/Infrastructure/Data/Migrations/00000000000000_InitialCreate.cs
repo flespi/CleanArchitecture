@@ -54,7 +54,7 @@ namespace CleanArchitecture.Infrastructure.Data.Migrations
                 name: "TodoLists",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Colour_Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false)
@@ -190,7 +190,7 @@ namespace CleanArchitecture.Infrastructure.Data.Migrations
                 name: "TodoItems",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ListId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),

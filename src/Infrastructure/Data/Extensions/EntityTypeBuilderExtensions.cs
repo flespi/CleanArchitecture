@@ -1,6 +1,7 @@
 ﻿using CleanArchitecture.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace CleanArchitecture.Infrastructure.Data;
 
@@ -17,7 +18,7 @@ public static class EntityTypeBuilderExtensions
             .IsClustered();
 
         builder.Property(e => e.Id)
-            .HasDefaultValueSql("(newid())");
+            .ValueGeneratedOnAdd();
 
         builder.Property(e => e.Sequence)
             .ValueGeneratedOnAdd();
