@@ -19,7 +19,7 @@ public class PurgeTodoListsTests : BaseTest
 
         command.GetType().Should().BeDecoratedWith<AuthorizeAttribute>();
 
-        var action = () => Context.SendAsync(command);
+        var action = () => SendAsync(command);
 
         await action.Should().ThrowAsync<UnauthorizedAccessException>();
     }
@@ -27,11 +27,11 @@ public class PurgeTodoListsTests : BaseTest
     [Fact]
     public async Task ShouldDenyNonAdministrator()
     {
-        await Context.RunAsDefaultUserAsync();
+        await RunAsDefaultUserAsync();
 
         var command = new PurgeTodoListsCommand();
 
-        var action = () => Context.SendAsync(command);
+        var action = () => SendAsync(command);
 
         await action.Should().ThrowAsync<ForbiddenAccessException>();
     }
@@ -39,11 +39,11 @@ public class PurgeTodoListsTests : BaseTest
     [Fact]
     public async Task ShouldAllowAdministrator()
     {
-        await Context.RunAsAdministratorAsync();
+        await RunAsAdministratorAsync();
 
         var command = new PurgeTodoListsCommand();
 
-        var action = () => Context.SendAsync(command);
+        var action = () => SendAsync(command);
 
         await action.Should().NotThrowAsync<ForbiddenAccessException>();
     }
@@ -51,26 +51,26 @@ public class PurgeTodoListsTests : BaseTest
     [Fact]
     public async Task ShouldDeleteAllLists()
     {
-        await Context.RunAsAdministratorAsync();
+        await RunAsAdministratorAsync();
 
-        await Context.SendAsync(new CreateTodoListCommand
+        await SendAsync(new CreateTodoListCommand
         {
             Title = "New List #1"
         });
 
-        await Context.SendAsync(new CreateTodoListCommand
+        await SendAsync(new CreateTodoListCommand
         {
             Title = "New List #2"
         });
 
-        await Context.SendAsync(new CreateTodoListCommand
+        await SendAsync(new CreateTodoListCommand
         {
             Title = "New List #3"
         });
 
-        await Context.SendAsync(new PurgeTodoListsCommand());
+        await SendAsync(new PurgeTodoListsCommand());
 
-        var count = await Context.CountAsync<TodoList>();
+        var count = await CountAsync<TodoList>();
 
         count.Should().Be(0);
     }

@@ -14,13 +14,13 @@ public class CreateTodoListTests : BaseTest
     public async Task ShouldRequireMinimumFields()
     {
         var command = new CreateTodoListCommand();
-        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
+        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task ShouldRequireUniqueTitle()
     {
-        await Context.SendAsync(new CreateTodoListCommand
+        await SendAsync(new CreateTodoListCommand
         {
             Title = "Shopping"
         });
@@ -31,22 +31,22 @@ public class CreateTodoListTests : BaseTest
         };
 
         await FluentActions.Invoking(() =>
-            Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
+            SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task ShouldCreateTodoList()
     {
-        var userId = await Context.RunAsDefaultUserAsync();
+        var userId = await RunAsDefaultUserAsync();
 
         var command = new CreateTodoListCommand
         {
             Title = "Tasks"
         };
 
-        var id = await Context.SendAsync(command);
+        var id = await SendAsync(command);
 
-        var list = await Context.FindAsync<TodoList>(id);
+        var list = await FindAsync<TodoList>(id);
 
         list.Should().NotBeNull();
         list!.Title.Should().Be(command.Title);

@@ -15,18 +15,18 @@ public class UpdateTodoListTests : BaseTest
     public async Task ShouldRequireValidTodoListId()
     {
         var command = new UpdateTodoListCommand { Id = 99, Title = "New Title" };
-        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
     [Fact]
     public async Task ShouldRequireUniqueTitle()
     {
-        var listId = await Context.SendAsync(new CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        await Context.SendAsync(new CreateTodoListCommand
+        await SendAsync(new CreateTodoListCommand
         {
             Title = "Other List"
         });
@@ -38,7 +38,7 @@ public class UpdateTodoListTests : BaseTest
         };
 
         (await FluentActions.Invoking(() =>
-            Context.SendAsync(command))
+            SendAsync(command))
                 .Should().ThrowAsync<ValidationException>().Where(ex => ex.Errors.ContainsKey("Title")))
                 .And.Errors["Title"].Should().Contain("'Title' must be unique.");
     }
@@ -46,9 +46,9 @@ public class UpdateTodoListTests : BaseTest
     [Fact]
     public async Task ShouldUpdateTodoList()
     {
-        var userId = await Context.RunAsDefaultUserAsync();
+        var userId = await RunAsDefaultUserAsync();
 
-        var listId = await Context.SendAsync(new CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
@@ -59,9 +59,9 @@ public class UpdateTodoListTests : BaseTest
             Title = "Updated List Title"
         };
 
-        await Context.SendAsync(command);
+        await SendAsync(command);
 
-        var list = await Context.FindAsync<TodoList>(listId);
+        var list = await FindAsync<TodoList>(listId);
 
         list.Should().NotBeNull();
         list!.Title.Should().Be(command.Title);

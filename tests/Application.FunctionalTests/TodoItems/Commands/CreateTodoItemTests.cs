@@ -17,15 +17,15 @@ public class CreateTodoItemTests : BaseTest
         var command = new CreateTodoItemCommand();
 
         await FluentActions.Invoking(() =>
-            Context.SendAsync(command)).Should().ThrowAsync<ValidationException>();
+            SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task ShouldCreateTodoItem()
     {
-        var userId = await Context.RunAsDefaultUserAsync();
+        var userId = await RunAsDefaultUserAsync();
 
-        var listId = await Context.SendAsync(new CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
@@ -36,9 +36,9 @@ public class CreateTodoItemTests : BaseTest
             Title = "Tasks"
         };
 
-        var itemId = await Context.SendAsync(command);
+        var itemId = await SendAsync(command);
 
-        var item = await Context.FindAsync<TodoItem>(itemId);
+        var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
         item!.ListId.Should().Be(command.ListId);

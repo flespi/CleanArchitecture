@@ -13,11 +13,11 @@ public class GetTodosTests : BaseTest
     [Fact]
     public async Task ShouldReturnPriorityLevels()
     {
-        await Context.RunAsDefaultUserAsync();
+        await RunAsDefaultUserAsync();
 
         var query = new GetTodosQuery();
 
-        var result = await Context.SendAsync(query);
+        var result = await SendAsync(query);
 
         result.PriorityLevels.Should().NotBeEmpty();
     }
@@ -25,9 +25,9 @@ public class GetTodosTests : BaseTest
     [Fact]
     public async Task ShouldReturnAllListsAndItems()
     {
-        await Context.RunAsDefaultUserAsync();
+        await RunAsDefaultUserAsync();
 
-        await Context.AddAsync(new TodoList
+        await AddAsync(new TodoList
         {
             Title = "Shopping",
             Colour = Colour.Blue,
@@ -45,7 +45,7 @@ public class GetTodosTests : BaseTest
 
         var query = new GetTodosQuery();
 
-        var result = await Context.SendAsync(query);
+        var result = await SendAsync(query);
 
         result.Lists.Should().HaveCount(1);
         result.Lists.First().Items.Should().HaveCount(7);
@@ -56,7 +56,7 @@ public class GetTodosTests : BaseTest
     {
         var query = new GetTodosQuery();
 
-        var action = () => Context.SendAsync(query);
+        var action = () => SendAsync(query);
         
         await action.Should().ThrowAsync<UnauthorizedAccessException>();
     }

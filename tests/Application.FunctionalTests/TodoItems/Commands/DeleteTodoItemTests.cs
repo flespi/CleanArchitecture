@@ -17,26 +17,26 @@ public class DeleteTodoItemTests : BaseTest
         var command = new DeleteTodoItemCommand(99);
 
         await FluentActions.Invoking(() =>
-            Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+            SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
     [Fact]
     public async Task ShouldDeleteTodoItem()
     {
-        var listId = await Context.SendAsync(new CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        var itemId = await Context.SendAsync(new CreateTodoItemCommand
+        var itemId = await SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "New Item"
         });
 
-        await Context.SendAsync(new DeleteTodoItemCommand(itemId));
+        await SendAsync(new DeleteTodoItemCommand(itemId));
 
-        var item = await Context.FindAsync<TodoItem>(itemId);
+        var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().BeNull();
     }

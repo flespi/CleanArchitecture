@@ -17,20 +17,20 @@ public class UpdateTodoItemDetailTests : BaseTest
     public async Task ShouldRequireValidTodoItemId()
     {
         var command = new UpdateTodoItemCommand { Id = 99, Title = "New Title" };
-        await FluentActions.Invoking(() => Context.SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
     [Fact]
     public async Task ShouldUpdateTodoItem()
     {
-        var userId = await Context.RunAsDefaultUserAsync();
+        var userId = await RunAsDefaultUserAsync();
 
-        var listId = await Context.SendAsync(new CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "New List"
         });
 
-        var itemId = await Context.SendAsync(new CreateTodoItemCommand
+        var itemId = await SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "New Item"
@@ -44,9 +44,9 @@ public class UpdateTodoItemDetailTests : BaseTest
             Priority = PriorityLevel.High
         };
 
-        await Context.SendAsync(command);
+        await SendAsync(command);
 
-        var item = await Context.FindAsync<TodoItem>(itemId);
+        var item = await FindAsync<TodoItem>(itemId);
 
         item.Should().NotBeNull();
         item!.ListId.Should().Be(command.ListId);
