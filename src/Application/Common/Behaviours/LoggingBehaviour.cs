@@ -7,20 +7,20 @@ namespace CleanArchitecture.Application.Common.Behaviours;
 public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
     private readonly ILogger _logger;
-    private readonly IUser _user;
+    private readonly IIdentityAccessor _identityAccesor;
     private readonly IIdentityService _identityService;
 
-    public LoggingBehaviour(ILogger<TRequest> logger, IUser user, IIdentityService identityService)
+    public LoggingBehaviour(ILogger<TRequest> logger, IIdentityAccessor identityAccesor, IIdentityService identityService)
     {
         _logger = logger;
-        _user = user;
+        _identityAccesor = identityAccesor;
         _identityService = identityService;
     }
 
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        var userId = _user.Id ?? string.Empty;
+        var userId = _identityAccesor.User.Id ?? string.Empty;
         string? userName = string.Empty;
 
         if (!string.IsNullOrEmpty(userId))

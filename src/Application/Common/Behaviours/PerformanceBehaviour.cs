@@ -8,18 +8,18 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
-    private readonly IUser _user;
+    private readonly IIdentityAccessor _identityAccesor;
     private readonly IIdentityService _identityService;
 
     public PerformanceBehaviour(
         ILogger<TRequest> logger,
-        IUser user,
+        IIdentityAccessor identityAccesor,
         IIdentityService identityService)
     {
         _timer = new Stopwatch();
 
         _logger = logger;
-        _user = user;
+        _identityAccesor = identityAccesor;
         _identityService = identityService;
     }
 
@@ -36,7 +36,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            var userId = _user.Id ?? string.Empty;
+            var userId = _identityAccesor.User.Id ?? string.Empty;
             var userName = string.Empty;
 
             if (!string.IsNullOrEmpty(userId))

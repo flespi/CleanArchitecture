@@ -8,14 +8,14 @@ namespace CleanArchitecture.Infrastructure.Data.Interceptors;
 
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
-    private readonly IUser _user;
+    private readonly IIdentityAccessor _identityAccessor;
     private readonly TimeProvider _dateTime;
 
     public AuditableEntityInterceptor(
-        IUser user,
+        IIdentityAccessor identityAccesor,
         TimeProvider dateTime)
     {
-        _user = user;
+        _identityAccessor = identityAccesor;
         _dateTime = dateTime;
     }
 
@@ -44,10 +44,10 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
                 var utcNow = _dateTime.GetUtcNow();
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = _user.Id;
+                    entry.Entity.CreatedBy = _identityAccessor.User.Id;
                     entry.Entity.Created = utcNow;
                 } 
-                entry.Entity.LastModifiedBy = _user.Id;
+                entry.Entity.LastModifiedBy = _identityAccessor.User.Id;
                 entry.Entity.LastModified = utcNow;
             }
         }

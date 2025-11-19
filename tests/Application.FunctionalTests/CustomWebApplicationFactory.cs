@@ -32,8 +32,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureTestServices(services =>
         {
             services
-                .RemoveAll<IUser>()
-                .AddTransient(provider => Mock.Of<IUser>(s => s.Id == GetUserId()));
+                .RemoveAll<IIdentityResolver>()
+                .AddTransient<IIdentityResolver>(_ => new IdentityResolver(GetUserId()!));
 #if (!UseAspire || UseSqlite)
             services
                 .RemoveAll<DbContextOptions<ApplicationDbContext>>()

@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using CleanArchitecture.Application.Common.Behaviours;
+using CleanArchitecture.Application.Common.Identity;
+using CleanArchitecture.Application.Common.Interfaces;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -19,5 +21,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         });
+
+        builder.Services.AddScoped<IIdentityAccessor, IdentityAccessor>();
     }
 }
