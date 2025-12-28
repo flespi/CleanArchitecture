@@ -26,14 +26,21 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-#if (UseAspire)
-        builder.UseSetting("ConnectionStrings:CleanArchitectureDb", _connectionString);
-#endif
+        builder
+            .UseEnvironment("Testing")
+            .UseSetting("ConnectionStrings:CleanArchitectureDb", _connectionString);
+
         builder.ConfigureTestServices(services =>
         {
             services
                 .RemoveAll<IUser>()
-                .AddTransient(provider => Mock.Of<IUser>(s => s.Id == GetUserId()));
+                .AddTransient(provider =>
+                {
+                    var mock = new Mock<IUser>();
+                    mock.SetupGet(x => x.Roles).Returns(GetRoles());
+                    mock.SetupGet(x => x.Id).Returns(GetUserId());
+                    return mock.Object;
+                });
 #if (!UseAspire || UseSqlite)
             services
                 .RemoveAll<DbContextOptions<ApplicationDbContext>>()
