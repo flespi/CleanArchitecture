@@ -14,8 +14,7 @@ public class CreateTodoItemTests : BaseTestFixture
     {
         var command = new CreateTodoItemCommand();
 
-        await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<ValidationException>();
+        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
     }
 
     [Test]
@@ -38,12 +37,12 @@ public class CreateTodoItemTests : BaseTestFixture
 
         var item = await FindAsync<TodoItem>(itemId);
 
-        item.Should().NotBeNull();
-        item!.ListId.Should().Be(command.ListId);
-        item.Title.Should().Be(command.Title);
-        item.Audit.CreatedBy.Should().Be(userId);
-        item.Audit.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
-        item.Audit.LastModifiedBy.Should().Be(userId);
-        item.Audit.LastModified.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item.ShouldNotBeNull();
+        item!.ListId.ShouldBe(command.ListId);
+        item.Title.ShouldBe(command.Title);
+        item.Audit.CreatedBy.ShouldBe(userId);
+        item.Audit.Created.ShouldBe(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        item.Audit.LastModifiedBy.ShouldBe(userId);
+        item.Audit.LastModified.ShouldBe(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

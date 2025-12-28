@@ -14,7 +14,7 @@ If you find this project useful, please give it a star. Thanks! ⭐
 
 The following prerequisites are required to build and run the solution:
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (latest version)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (latest version)
 - [Node.js](https://nodejs.org/) (latest LTS, only required if you are using Angular or React)
 
 The easiest way to get started is to install the [.NET template](https://www.nuget.org/packages/Clean.Architecture.Solution.Template):
@@ -69,23 +69,22 @@ dotnet new ca-usecase --help
 
 ## Database
 
-The template supports [PostgresSQL](https://www.postgresql.org), [SQLite](https://www.sqlite.org/), and [SQL Server](https://learn.microsoft.com/en-us/sql/sql-server/what-is-sql-server) (default option). Specify the database to use with the `--database` option:
+The template supports [PostgreSQL](https://www.postgresql.org), [SQLite](https://www.sqlite.org/), and [SQL Server](https://learn.microsoft.com/en-us/sql/sql-server/what-is-sql-server) (default option). Specify the database to use with the `--database` option:
 
 ```bash
 dotnet new ca-sln --database [postgresql|sqlite|sqlserver]
 ```
 
-When you run the application, the database will be automatically created (if necessary) and the latest migrations will be applied.
+On application startup, the database is automatically **deleted**, **recreated**, and **seeded** using `ApplicationDbContextInitialiser`. This is a practical strategy for early development, avoiding the overhead of maintaining migrations while keeping the schema and sample data in sync with the domain model.
 
-Running database migrations is easy. Ensure you add the following flags to your command (values assume you are executing from repository root)
+This process includes:
 
-* `--project src/Infrastructure` (optional if in this folder)
-* `--startup-project src/Web`
-* `--output-dir Data/Migrations`
+- Deleting the existing database  
+- Recreating the schema from the current model  
+- Seeding default roles, users, and data  
 
-For example, to add a new migration from the root folder:
-
- `dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Web --output-dir Data\Migrations`
+For production environments, consider using EF Core migrations or migration bundles during deployment.  
+For more information, see [Database Initialisation Strategies for EF Core](https://jasontaylor.dev/ef-core-database-initialisation-strategies).
 
 ## Deploy
 
@@ -107,11 +106,12 @@ azd up
 * [MediatR](https://github.com/jbogard/MediatR)
 * [AutoMapper](https://automapper.org/)
 * [FluentValidation](https://fluentvalidation.net/)
-* [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/devlooped/moq) & [Respawn](https://github.com/jbogard/Respawn)
+* [NUnit](https://nunit.org/), [Shoudly](https://docs.shouldly.org/), [Moq](https://github.com/devlooped/moq) & [Respawn](https://github.com/jbogard/Respawn)
 
 ## Versions
-The main branch is now on .NET 9.0. The following previous versions are available:
+The main branch is now on .NET 10.0. The following previous versions are available:
 
+* [9.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net8.0)
 * [8.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net8.0)
 * [7.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net7.0)
 * [6.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net6.0)
