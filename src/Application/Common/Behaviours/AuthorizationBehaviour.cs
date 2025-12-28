@@ -7,7 +7,8 @@ using Orca;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
 
-public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> 
+    where TRequest : notnull
 {
     private readonly IUser _user;
     private readonly OrcaOptions _options;
@@ -65,7 +66,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
                 {
                     var permissionEvaluator = new PermissionEvaluator(_options.ClaimTypeMap);
                     var authorized = permissionEvaluator.HasPermission(_user.Principal, policy);
-                    
+
                     if (!authorized)
                     {
                         throw new ForbiddenAccessException();

@@ -54,7 +54,7 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static ClaimsPrincipal? GetUserId()
+    public static ClaimsPrincipal? GetUserPrincipal()
     {
         return _user.Principal;
     }
