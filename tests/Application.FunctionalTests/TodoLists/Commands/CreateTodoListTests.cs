@@ -12,7 +12,7 @@ public class CreateTodoListTests : BaseTestFixture
     public async Task ShouldRequireMinimumFields()
     {
         var command = new CreateTodoListCommand();
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
+        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
     }
 
     [Test]
@@ -34,8 +34,7 @@ public class CreateTodoListTests : BaseTestFixture
             }
         };
 
-        await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<ValidationException>();
+        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
     }
 
     [Test]
@@ -55,9 +54,9 @@ public class CreateTodoListTests : BaseTestFixture
 
         var list = await FindAsync<TodoList>(id);
 
-        list.Should().NotBeNull();
-        list!.Title.Should().Be(command.Data.Title);
-        list.CreatedBy.Should().Be(userId);
-        list.Created.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(10000));
+        list.ShouldNotBeNull();
+        list!.Title.ShouldBe(command.Data.Title);
+        list.CreatedBy.ShouldBe(userId);
+        list.Created.ShouldBe(DateTime.Now, TimeSpan.FromMilliseconds(10000));
     }
 }

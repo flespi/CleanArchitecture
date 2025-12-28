@@ -14,8 +14,7 @@ public class DeleteTodoItemTests : BaseTestFixture
     {
         var command = new DeleteTodoItemCommand(99);
 
-        await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await Should.ThrowAsync<NotFoundException>(() => SendAsync(command));
     }
 
     [Test]
@@ -42,6 +41,6 @@ public class DeleteTodoItemTests : BaseTestFixture
 
         var item = await FindAsync<TodoItem>(itemId);
 
-        item.Should().BeNull();
+        item.ShouldBeNull();
     }
 }

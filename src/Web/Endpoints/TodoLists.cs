@@ -8,14 +8,12 @@ namespace CleanArchitecture.Web.Endpoints;
 
 public class TodoLists : EndpointGroupBase
 {
-    public override void Map(WebApplication app)
+    public override void Map(RouteGroupBuilder groupBuilder)
     {
-        app.MapGroup(this)
-            .RequireAuthorization()
-            .MapGet(GetTodoLists)
-            .MapPost(CreateTodoList)
-            .MapPut(UpdateTodoList, "{id}")
-            .MapDelete(DeleteTodoList, "{id}");
+        groupBuilder.MapGet(GetTodoLists).RequireAuthorization();
+        groupBuilder.MapPost(CreateTodoList).RequireAuthorization();
+        groupBuilder.MapPut(UpdateTodoList, "{id}").RequireAuthorization();
+        groupBuilder.MapDelete(DeleteTodoList, "{id}").RequireAuthorization();
     }
 
     public async Task<Ok<TodosVm>> GetTodoLists(ISender sender)
