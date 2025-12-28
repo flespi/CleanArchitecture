@@ -3,15 +3,16 @@
   <metadata>
 
     <id>Clean.Architecture.Solution.Template</id>
-    <version>9.0.10</version>
+    <version>10.0.0</version>
     <title>Clean Architecture Solution Template</title>
     <authors>JasonTaylorDev</authors>
-    <description>Clean Architecture Solution Template for .NET 9.</description>
+    <description>Clean Architecture Solution Template for .NET 10</description>
     <summary>
-      A Clean Architecture Solution Template for creating apps using Angular, React, or Web API only with ASP.NET Core.
+      A Clean Architecture Solution Template for creating apps using Angular, React, or Web API only with ASP.NET Core (and optional Aspire).
     </summary>
     <releaseNotes>
-      📦 Updated Azure DevOps and GitHub Actions pipeline configurations to enhance compatibility and simplify setup
+      📦 Upgrade to .NET 10
+      📦 Upgrade to Aspire 13
     </releaseNotes>
 
     <projectUrl>https://github.com/JasonTaylorDev/CleanArchitecture</projectUrl>
