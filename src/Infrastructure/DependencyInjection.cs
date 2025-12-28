@@ -1,5 +1,4 @@
-﻿using System;
-using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Domain.Constants;
 using CleanArchitecture.Infrastructure.Data;
 using CleanArchitecture.Infrastructure.Data.Interceptors;
@@ -40,6 +39,7 @@ public static class DependencyInjection
 #else
             options.UseSqlServer(connectionString).UseAsyncSeeding(seeder);
 #endif
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
 #if (UseAspire)
