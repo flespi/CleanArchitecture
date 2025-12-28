@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -28,12 +27,13 @@ public static class DependencyInjection
 
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
 #if (UsePostgreSQL)
-            options.UseNpgsql(connectionString).AddAsyncSeeding(sp);
+            options.UseNpgsql(connectionString);
 #elif (UseSqlite)
-            options.UseSqlite(connectionString).AddAsyncSeeding(sp);
+            options.UseSqlite(connectionString);
 #else
-            options.UseSqlServer(connectionString).AddAsyncSeeding(sp);
+            options.UseSqlServer(connectionString);
 #endif
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());

@@ -15,7 +15,7 @@ public class DeleteTodoListTests : BaseTest
     public async Task ShouldRequireValidTodoListId()
     {
         var command = new DeleteTodoListCommand(99);
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        await Should.ThrowAsync<NotFoundException>(() => SendAsync(command));
     }
 
     [Fact]
@@ -30,6 +30,6 @@ public class DeleteTodoListTests : BaseTest
 
         var list = await FindAsync<TodoList>(listId);
 
-        list.Should().BeNull();
+        list.ShouldBeNull();
     }
 }

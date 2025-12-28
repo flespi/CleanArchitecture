@@ -19,18 +19,16 @@
     </ItemGroup>
     <!--#endif-->
     <ItemGroup>
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-      <PackageReference Include="Microsoft.Data.SqlClient" />
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
       <PackageReference Include="coverlet.collector">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="FluentAssertions" />
       <PackageReference Include="Moq" />
       <PackageReference Include="Respawn" />
-      <PackageReference Include="System.Configuration.ConfigurationManager" />
-      <PackageReference Include="TestContainers" />
+      <PackageReference Include="Shouldly" />
       <!--#if (UsePostgreSQL)-->
       <PackageReference Include="Testcontainers.PostgreSql" />
       <!--#endif-->
@@ -47,9 +45,5 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Web\Web.csproj" />
     </ItemGroup>
-
-	<ItemGroup>
-		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
 
 </Project>

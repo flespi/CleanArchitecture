@@ -19,7 +19,7 @@ public class GetTodosTests : BaseTest
 
         var result = await SendAsync(query);
 
-        result.PriorityLevels.Should().NotBeEmpty();
+        result.PriorityLevels.ShouldNotBeEmpty();
     }
 
     [Fact]
@@ -32,23 +32,23 @@ public class GetTodosTests : BaseTest
             Title = "Shopping",
             Colour = Colour.Blue,
             Items =
-                    {
-                        new TodoItem { Title = "Apples", Done = true },
-                        new TodoItem { Title = "Milk", Done = true },
-                        new TodoItem { Title = "Bread", Done = true },
-                        new TodoItem { Title = "Toilet paper" },
-                        new TodoItem { Title = "Pasta" },
-                        new TodoItem { Title = "Tissues" },
-                        new TodoItem { Title = "Tuna" }
-                    }
+                {
+                    new TodoItem { Title = "Apples", Done = true },
+                    new TodoItem { Title = "Milk", Done = true },
+                    new TodoItem { Title = "Bread", Done = true },
+                    new TodoItem { Title = "Toilet paper" },
+                    new TodoItem { Title = "Pasta" },
+                    new TodoItem { Title = "Tissues" },
+                    new TodoItem { Title = "Tuna" }
+                }
         });
 
         var query = new GetTodosQuery();
 
         var result = await SendAsync(query);
 
-        result.Lists.Should().HaveCount(1);
-        result.Lists.First().Items.Should().HaveCount(7);
+        result.Lists.Count.ShouldBe(1);
+        result.Lists.First().Items.Count.ShouldBe(7);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class GetTodosTests : BaseTest
         var query = new GetTodosQuery();
 
         var action = () => SendAsync(query);
-        
-        await action.Should().ThrowAsync<UnauthorizedAccessException>();
+
+        await Should.ThrowAsync<UnauthorizedAccessException>(action);
     }
 }

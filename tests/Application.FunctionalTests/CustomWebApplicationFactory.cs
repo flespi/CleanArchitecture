@@ -27,9 +27,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         var connectionString = _container.GetConnectionString();
 
-#if (UseAspire)
-        builder.UseSetting("ConnectionStrings:CleanArchitectureDb", connectionString);
-#endif
+        builder
+            .UseEnvironment("Testing")
+            .UseSetting("ConnectionStrings:CleanArchitectureDb", connectionString);
+
         builder.ConfigureTestServices(services =>
         {
             services
