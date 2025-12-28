@@ -13,5 +13,5 @@ public class IdentityResolver : IIdentityResolver
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public IUser User => new BasicUser(_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    public IUser User => new BasicUser(_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)!, []);
 }

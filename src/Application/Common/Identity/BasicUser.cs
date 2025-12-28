@@ -2,7 +2,9 @@
 
 namespace CleanArchitecture.Application.Common.Identity;
 
-public class BasicUser(string id) : IUser
+public class BasicUser(string id, List<string> roles) : IUser
 {
     public string Id { get; } = id;
+
+    public List<string>? Roles { get; } = roles;
 }

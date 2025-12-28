@@ -26,14 +26,15 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-#if (UseAspire)
-        builder.UseSetting("ConnectionStrings:CleanArchitectureDb", _connectionString);
-#endif
+        builder
+            .UseEnvironment("Testing")
+            .UseSetting("ConnectionStrings:CleanArchitectureDb", _connectionString);
+
         builder.ConfigureTestServices(services =>
         {
             services
                 .RemoveAll<IIdentityResolver>()
-                .AddTransient<IIdentityResolver>(_ => new IdentityResolver(GetUserId()!));
+                .AddTransient<IIdentityResolver>(_ => new IdentityResolver(GetUserId()!, []));
 #if (!UseAspire || UseSqlite)
             services
                 .RemoveAll<DbContextOptions<ApplicationDbContext>>()

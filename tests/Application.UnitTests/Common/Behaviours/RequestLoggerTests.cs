@@ -25,7 +25,7 @@ public class RequestLoggerTests
     [Test]
     public async Task ShouldCallGetUserNameAsyncOnceIfAuthenticated()
     {
-        _identityAccessor.Setup(x => x.User).Returns(new BasicUser(Guid.NewGuid().ToString()));
+        _identityAccessor.Setup(x => x.User).Returns(new BasicUser(Guid.NewGuid().ToString(), []));
 
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _identityAccessor.Object, _identityService.Object);
 
@@ -37,7 +37,7 @@ public class RequestLoggerTests
     [Test]
     public async Task ShouldNotCallGetUserNameAsyncOnceIfUnauthenticated()
     {
-        _identityAccessor.Setup(x => x.User).Returns(new BasicUser(string.Empty));
+        _identityAccessor.Setup(x => x.User).Returns(new BasicUser(string.Empty, []));
 
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _identityAccessor.Object, _identityService.Object);
 
