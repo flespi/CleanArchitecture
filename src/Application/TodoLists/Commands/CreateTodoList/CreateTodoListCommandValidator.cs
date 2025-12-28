@@ -16,7 +16,7 @@ public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCo
             .NotEmpty()
             .MaximumLength(200)
             .MustAsync(BeUniqueTitle)
-                .WithMessage(localizer["The field must be unique."])
+                .WithMessage(localizer["Unique_Field"])
                 .WithErrorCode("Unique");
     }
 
