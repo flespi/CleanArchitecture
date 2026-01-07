@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Domain.Common;
+using CleanArchitecture.Infrastructure.Data.ValueConversion;
 using CleanArchitecture.Infrastructure.Data.ValueGeneration;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +13,7 @@ public static class EntityTypeBuilderExtensions
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id)
+            .HasConversion<GuidToBytesConverter>()
             .HasValueGenerator<ChronologicalGuidValueGenerator>()
             .ValueGeneratedOnAdd();
 
