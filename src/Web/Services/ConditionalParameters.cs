@@ -1,5 +1,5 @@
 ﻿using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Application.Common.Types;
+using CleanArchitecture.Domain.Types;
 using Microsoft.Net.Http.Headers;
 
 namespace CleanArchitecture.Web.Services;
@@ -14,4 +14,6 @@ public class ConditionalParameters : IConditionalParameters
     }
 
     public Hex? IfMatch => _httpContextAccessor.HttpContext?.Request.Headers[HeaderNames.IfMatch].FirstOrDefault();
+
+    Hex? IConditionalParameters.IfMatch => throw new NotImplementedException();
 }

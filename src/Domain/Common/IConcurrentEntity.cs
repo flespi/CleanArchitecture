@@ -1,6 +1,8 @@
-﻿namespace CleanArchitecture.Domain.Common;
+﻿using CleanArchitecture.Domain.Types;
+
+namespace CleanArchitecture.Domain.Common;
 
 public interface IConcurrentEntity
 {
-    byte[]? ConcurrencyToken { get; set; }
+    Hex? ConcurrencyToken { get; set; }
 }

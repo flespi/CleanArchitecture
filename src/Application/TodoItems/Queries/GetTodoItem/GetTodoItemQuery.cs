@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using CleanArchitecture.Application.Common.Exceptions;
-using CleanArchitecture.Application.Common.Interfaces;
+﻿using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Common.Models;
-using CleanArchitecture.Application.Common.Types;
-using CleanArchitecture.Domain.Entities;
 
 namespace CleanArchitecture.Application.TodoItems.Queries.GetTodoItem;
 
@@ -30,12 +26,10 @@ public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoIte
 
         Guard.Against.NotFound(request.Id, entity);
 
-        Hex? concurrencyToken = entity.ConcurrencyToken;
-
         return new Versioned<TodoItemDto>
         {
             Result = _mapper.Map<TodoItemDto>(entity),
-            ConcurrencyToken = concurrencyToken?.ToString()
+            ConcurrencyToken = entity.ConcurrencyToken
         };
     }
 }

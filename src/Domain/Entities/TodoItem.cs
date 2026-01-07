@@ -1,4 +1,6 @@
-﻿namespace CleanArchitecture.Domain.Entities;
+﻿using CleanArchitecture.Domain.Types;
+
+namespace CleanArchitecture.Domain.Entities;
 
 public class TodoItem : BaseAuditableEntity, IConcurrentEntity
 {
@@ -29,5 +31,5 @@ public class TodoItem : BaseAuditableEntity, IConcurrentEntity
 
     public TodoList List { get; set; } = null!;
 
-    public byte[]? ConcurrencyToken { get; set; }
+    public Hex? ConcurrencyToken { get; set; }
 }

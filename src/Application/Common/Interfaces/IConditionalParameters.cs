@@ -1,4 +1,4 @@
-﻿using CleanArchitecture.Application.Common.Types;
+﻿using CleanArchitecture.Domain.Types;
 
 namespace CleanArchitecture.Application.Common.Interfaces;
 
