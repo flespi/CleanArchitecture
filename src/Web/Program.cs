@@ -55,6 +55,13 @@ app.MapDefaultEndpoints();
 #endif
 app.MapEndpoints();
 
+app.UseRequestLocalization(options =>
+{
+    options.SetDefaultCulture("en")
+        .AddSupportedCultures("en")
+        .AddSupportedUICultures("en");
+});
+
 app.Run();
 
 public partial class Program { }

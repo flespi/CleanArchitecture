@@ -3,6 +3,7 @@
 using static Testing;
 
 [TestFixture]
+[SetUICulture("en")]
 public abstract class BaseTestFixture
 {
     [SetUp]

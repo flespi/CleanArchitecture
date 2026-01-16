@@ -22,6 +22,6 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
         });
 
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        builder.Services.AddLocalization();
     }
 }
