@@ -1,5 +1,4 @@
 ﻿using CleanArchitecture.Application.Common.Exceptions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CleanArchitecture.Infrastructure.Data.Interceptors;
@@ -8,22 +7,33 @@ public class ConcurrentEntityInterceptor : SaveChangesInterceptor
 {
     public override void SaveChangesFailed(DbContextErrorEventData eventData)
     {
-        HandleException(eventData.Exception);
-
-        base.SaveChangesFailed(eventData);
+        if (eventData.Exception.InnerException is ConcurrencyException concurrencyException)
+        {
+            throw concurrencyException;
+        }
     }
 
     public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
-        HandleException(eventData.Exception);
+        if (eventData.Exception.InnerException is ConcurrencyException concurrencyException)
+        {
+            throw concurrencyException;
+        }
 
-        return base.SaveChangesFailedAsync(eventData, cancellationToken);
+        return Task.CompletedTask;
     }
 
-    private static void HandleException(Exception exception)
+    public override InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
     {
-        if (exception is not DbUpdateConcurrencyException concurrencyException) return;
+        if (result.IsSuppressed) return result;
 
-        throw new ConcurrencyException(concurrencyException);
+        throw new ConcurrencyException(eventData.Exception);
+    }
+
+    public override ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(ConcurrencyExceptionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+    {
+        if (result.IsSuppressed) return ValueTask.FromResult(result);
+
+        throw new ConcurrencyException(eventData.Exception);
     }
 }

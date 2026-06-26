@@ -23,14 +23,14 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
     {
         UpdateEntities(eventData.Context);
 
-        return base.SavingChanges(eventData, result);
+        return result;
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
         UpdateEntities(eventData.Context);
 
-        return base.SavingChangesAsync(eventData, result, cancellationToken);
+        return ValueTask.FromResult(result);
     }
 
     public void UpdateEntities(DbContext? context)

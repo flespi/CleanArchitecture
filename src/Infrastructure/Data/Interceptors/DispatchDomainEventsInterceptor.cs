@@ -18,7 +18,7 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
     {
         DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
 
-        return base.SavingChanges(eventData, result);
+        return result;
 
     }
 
@@ -26,7 +26,7 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
     {
         await DispatchDomainEvents(eventData.Context);
 
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        return result;
     }
 
     public async Task DispatchDomainEvents(DbContext? context)
