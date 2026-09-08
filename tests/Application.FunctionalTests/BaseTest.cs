@@ -8,28 +8,28 @@ using Microsoft.Extensions.DependencyInjection;
 namespace CleanArchitecture.Application.FunctionalTests;
 
 // [Collection(BaseCollection.Name)]
-public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
+public abstract class BaseTest : IClassFixture<AppTestContext>, IAsyncLifetime
 {
-    protected TestContext Context { get; }
+    protected AppTestContext Context { get; }
 
-    public BaseTest(TestContext context)
+    public BaseTest(AppTestContext context)
     {
         Context = context;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
-        await Context.ResetState();
+        await Context.ResetAsync();
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
@@ -38,7 +38,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
 
     public async Task SendAsync(IBaseRequest request)
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
@@ -48,7 +48,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
     public async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
         where TEntity : class
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -58,7 +58,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
     public async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -69,7 +69,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
 
     public async Task<int> CountAsync<TEntity>() where TEntity : class
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -93,7 +93,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
 
     public async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
-        using var scope = Context.CreateScope();
+        using var scope = Context.ServiceScopeFactory.CreateScope();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
@@ -116,6 +116,7 @@ public abstract class BaseTest : IClassFixture<TestContext>, IAsyncLifetime
         if (result.Succeeded)
         {
             Context.User.Id = user.Id;
+            Context.User.Roles = [.. roles];
 
             return Context.User.Id;
         }

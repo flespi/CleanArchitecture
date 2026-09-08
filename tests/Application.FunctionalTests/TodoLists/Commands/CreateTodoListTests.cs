@@ -6,7 +6,7 @@ namespace CleanArchitecture.Application.FunctionalTests.TodoLists.Commands;
 
 public class CreateTodoListTests : BaseTest
 {
-    public CreateTodoListTests(TestContext context) : base(context)
+    public CreateTodoListTests(AppTestContext context) : base(context)
     {
     }
 

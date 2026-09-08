@@ -8,7 +8,7 @@ namespace CleanArchitecture.Application.FunctionalTests.TodoLists.Commands;
 
 public class PurgeTodoListsTests : BaseTest
 {
-    public PurgeTodoListsTests(TestContext context) : base(context)
+    public PurgeTodoListsTests(AppTestContext context) : base(context)
     {
     }
 

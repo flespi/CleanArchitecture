@@ -7,7 +7,7 @@ namespace CleanArchitecture.Application.FunctionalTests.TodoItems.Commands;
 
 public class DeleteTodoItemTests : BaseTest
 {
-    public DeleteTodoItemTests(TestContext context) : base(context)
+    public DeleteTodoItemTests(AppTestContext context) : base(context)
     {
     }
 

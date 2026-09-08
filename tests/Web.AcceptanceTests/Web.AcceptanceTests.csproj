@@ -5,6 +5,10 @@
         <AssemblyName>CleanArchitecture.Web.AcceptanceTests</AssemblyName>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>
+    </PropertyGroup>
+
     <ItemGroup>
         <None Remove="appsettings.json" />
     </ItemGroup>
@@ -21,9 +25,8 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="Microsoft.Playwright" />
         <PackageReference Include="Shouldly" />
-        <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" />
-        <PackageReference Include="SpecFlow.xUnit" />
-        <PackageReference Include="xunit" />
+        <PackageReference Include="Reqnroll.xunit.v3" />
+        <PackageReference Include="xunit.v3" />
         <PackageReference Include="xunit.runner.visualstudio">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>

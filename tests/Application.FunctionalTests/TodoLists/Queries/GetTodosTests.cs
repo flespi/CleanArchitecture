@@ -6,7 +6,7 @@ namespace CleanArchitecture.Application.FunctionalTests.TodoLists.Queries;
 
 public class GetTodosTests : BaseTest
 {
-    public GetTodosTests(TestContext context) : base(context)
+    public GetTodosTests(AppTestContext context) : base(context)
     {
     }
 
@@ -47,7 +47,7 @@ public class GetTodosTests : BaseTest
 
         var result = await SendAsync(query);
 
-        result.Lists.Count.ShouldBe(1);
+        result.Lists.Count.ShouldBe(2);
         result.Lists.First().Items.Count.ShouldBe(7);
     }
 
