@@ -13,6 +13,6 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
             .IsRequired();
 
         builder
-            .OwnsOne(b => b.Audit);
+            .OwnsOne(b => b.Audit, new AuditabilityConfiguration<TodoItem>());
     }
 }

@@ -16,6 +16,6 @@ public class TodoListConfiguration : IEntityTypeConfiguration<TodoList>
             .OwnsOne(b => b.Colour);
 
         builder
-            .OwnsOne(b => b.Audit);
+            .OwnsOne(b => b.Audit, new AuditabilityConfiguration<TodoList>());
     }
 }
